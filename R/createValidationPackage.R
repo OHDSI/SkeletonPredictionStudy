@@ -72,7 +72,7 @@ transportPlpModels <- function(analysesDir,
     pathToCustom <- system.file("settings", cohortVariableSetting, package = "SkeletonPredictionStudy")
     cohortVarsToCreate <- utils::read.csv(pathToCustom)
     temp <- cohortVarsToCreate$cohortId*1000+456
-    write.csv(cohortVarsToCreate[temp%in%cohortCovs,], 
+    utils::write.csv(cohortVarsToCreate[temp%in%cohortCovs,], 
               file.path(gsub('plp_models','settings', outputDir),'cohortVariableSetting.csv'), 
               row.names = F)
   }

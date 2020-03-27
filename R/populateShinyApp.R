@@ -1,3 +1,30 @@
+# Copyright 2020 Observational Health Data Sciences and Informatics
+#
+# This file is part of SkeletonPredictionStudy
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#' Adds the results of the study into a shiny app
+#'
+#' @details
+#' This function adds the results of the study into a shiny app ready for sharing 
+#'
+#' @param outputDirectory     Name of folder containing the shiny app
+#' @param shinyDirectory      Location of a template shiny app (with no data)
+#' @param resultDirectory     The location of the results from the study
+#' @param minCellCount        The minimum number of subjects contributing to a count before it can be included in the results.
+#' @param databaseName        A friendly name for the database
+#'
 #' @export
 populateShinyApp <- function(outputDirectory = './ShinyApp',
                              shinyDirectory,

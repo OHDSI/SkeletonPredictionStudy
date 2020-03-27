@@ -6,6 +6,7 @@ Author: Jenna Reps [aut, cre]
 Maintainer: Jenna M Reps <reps@ohdsi.org>
 Description: A skeleton package, to be used as a starting point when implementing patient-level prediction studies.
 Depends:
+    R(>= 3.6.0),
     DatabaseConnector
 Imports:
     SqlRender,
@@ -17,17 +18,17 @@ Imports:
     ffbase,
     OhdsiSharing,
     zip,
-	ParallelLogger,
-	magrittr,
-	dplyr,
-	officer,
-	gridExtra,
-	rvg,
-	jsonlite,
-	shiny,
-	shinycssloaders,
-  shinydashboard,
-  R.utils
+	  ParallelLogger,
+	  magrittr,
+	  dplyr,
+	  officer,
+	  gridExtra,
+	  rvg,
+	  jsonlite,
+	  shiny,
+	  shinycssloaders,
+    shinydashboard,
+    R.utils
 Suggests:
     knitr,
     rmarkdown,
