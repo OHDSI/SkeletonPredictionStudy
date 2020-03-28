@@ -1,4 +1,4 @@
-A Package Skeleton for Patientl-Level Prediction Studies
+A Package Skeleton for Patient-Level Prediction Studies
 ========================================================
 
 A skeleton package, to be used as a starting point when implementing patient-level prediction studies.
