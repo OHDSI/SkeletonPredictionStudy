@@ -66,7 +66,8 @@ getCohortCovariateData <- function(connection,
                            covariate_id = covariateSettings$covariateId,
                            endDay=covariateSettings$endDay,
                            countval = covariateSettings$count)
-  sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
+  sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"), 
+                              oracleTempSchema = oracleTempSchema)
   # Retrieve the covariate:
   covariates <- DatabaseConnector::querySql.ffdf(connection, sql)
   # Convert colum names to camelCase:
@@ -76,7 +77,8 @@ getCohortCovariateData <- function(connection,
   456 as analysis_id, -1 as concept_id"
   sql <- SqlRender::render(sql, covariate_id = covariateSettings$covariateId,
                            concept_set=paste(covariateSettings$covariateName,' days before:', covariateSettings$startDay, 'days after:', covariateSettings$endDay))
-  sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"))
+  sql <- SqlRender::translate(sql, targetDialect = attr(connection, "dbms"),
+                              oracleTempSchema = oracleTempSchema)
   # Retrieve the covariateRef:
   covariateRef  <- DatabaseConnector::querySql.ffdf(connection, sql)
   colnames(covariateRef) <- SqlRender::snakeCaseToCamelCase(colnames(covariateRef))
