@@ -11,11 +11,10 @@ Depends:
 Imports:
     SqlRender,
     Cyclops,
-    FeatureExtraction (>= 2.0.0),
-    PatientLevelPrediction (>= 3.0.14),
+    FeatureExtraction (>= 3.0.0),
+    PatientLevelPrediction (>= 4.0.0),
     ggplot2,
-    ff,
-    ffbase,
+    Andromeda,
     OhdsiSharing,
     zip,
 	  ParallelLogger,
@@ -40,4 +39,4 @@ Suggests:
 License: Apache License 2.0
 VignetteBuilder: knitr
 LazyData: TRUE
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
