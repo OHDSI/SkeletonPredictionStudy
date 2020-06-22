@@ -38,8 +38,6 @@ Instructions To Run Study
 # The folder where the study intermediate and result files will be written:
 outputFolder <- "./SkeletonPredictionStudyResults"
 
-# Specify where the temporary files (used by the ff package) will be created:
-options(fftempdir = "location with space to save big data")
 
 # Details for connecting to the server:
 dbms <- "you dbms"
