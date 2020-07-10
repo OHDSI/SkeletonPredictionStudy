@@ -697,30 +697,54 @@ createMultiPlpReport <- function(analysisLocation,
         officer::body_add_table(model$internalPerformance, style = tableStyle) %>%
         officer::body_add_gg(model$scatterPlot) 
       if(!is.null(model$internalPlots[[7]])){
-        doc %>% rvg::body_add_vg(code = do.call(gridExtra::grid.arrange, c(model$internalPlots, list(layout_matrix=rbind(c(1,2),
-                                                                                                                         c(3,4),
-                                                                                                                         c(5,6),
-                                                                                                                         c(7,7),
-                                                                                                                         c(7,7),
-                                                                                                                         c(8,8),
-                                                                                                                         c(9,9)
-        )))))} else{
+        
+        codeLoc <- paste0(tempfile(),'.jpg')
+        grDevices::jpeg(codeLoc)
+        do.call(gridExtra::grid.arrange, c(model$internalPlots, list(layout_matrix=rbind(c(1,2),
+                                                                                         c(3,4),
+                                                                                         c(5,6),
+                                                                                         c(7,7),
+                                                                                         c(7,7),
+                                                                                         c(8,8),
+                                                                                         c(9,9)
+        ))))
+        grDevices::dev.off()
+        doc %>% officer::body_add_img(codeLoc, width = 7, height = 25 )
+        #doc %>% rvg::body_add_vg(code = code)
+        } else{
           model$internalPlots[[7]] <- NULL
-          doc %>% rvg::body_add_vg(code = do.call(gridExtra::grid.arrange, c(model$internalPlots, list(layout_matrix=rbind(c(1,2),
-                                                                                                                           c(3,4),
-                                                                                                                           c(5,6),
-                                                                                                                           c(7,7),
-                                                                                                                           c(8,8)
-          )))))   
+          codeLoc <- paste0(tempfile(),'.jpg')
+          grDevices::jpeg(codeLoc)
+          do.call(gridExtra::grid.arrange, c(model$internalPlots, list(layout_matrix=rbind(c(1,2),
+                                                                                                   c(3,4),
+                                                                                                   c(5,6),
+                                                                                                   c(7,7),
+                                                                                                   c(8,8)
+          ))))
+          grDevices::dev.off()
+          doc %>% officer::body_add_img(codeLoc, width = 7, height = 20 )
+          #doc %>% rvg::body_add_vg(code = code)   
         }
     }
     
     if(!is.null(model$externalPerformance)){
+      
+      codeLoc1 <- paste0(tempfile(),'.jpg')
+      grDevices::jpeg(codeLoc1)
+      do.call(gridExtra::grid.arrange, model$externalRocPlots)
+      grDevices::dev.off()
+      codeLoc2 <- paste0(tempfile(),'.jpg')
+      grDevices::jpeg(codeLoc2)
+      do.call(gridExtra::grid.arrange, model$externalCalPlots)
+      grDevices::dev.off()
+      
       doc  %>%  officer::body_add_par("") %>%
         officer::body_add_par("External Performance", style = heading3) %>%
         officer::body_add_table(model$externalPerformance, style = tableStyle) %>%
-        rvg::body_add_vg(code = do.call(gridExtra::grid.arrange, model$externalRocPlots)) %>%
-        rvg::body_add_vg(code = do.call(gridExtra::grid.arrange, model$externalCalPlots))
+        officer::body_add_img(codeLoc1, width = 7, height = length(model$externalRocPlots)*3 ) %>%
+        officer::body_add_img(codeLoc2, width = 7, height = length(model$externalRocPlots)*3 )
+        #rvg::body_add_vg(code = do.call(gridExtra::grid.arrange, model$externalRocPlots)) %>%
+        #rvg::body_add_vg(code = do.call(gridExtra::grid.arrange, model$externalCalPlots))
     }
     
     doc  %>%  officer::body_add_break() 
