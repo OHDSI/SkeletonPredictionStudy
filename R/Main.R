@@ -216,6 +216,7 @@ execute <- function(connectionDetails,
       ensure_installed("DT")
       ensure_installed("VennDiagram")
       ensure_installed("htmltools")
+      ensure_installed("shinyWidgets")
       shinyDirectory <- system.file("shiny", "DiagnosticsExplorer", package = "PatientLevelPrediction")
       shinySettings <- list(dataFolder = file.path(outputFolder, 'diagnostics'))
       .GlobalEnv$shinySettings <- shinySettings
