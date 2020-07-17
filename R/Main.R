@@ -52,6 +52,7 @@
 #' @param createShiny          Create a shiny app with the results
 #' @param createJournalDocument Do you want to create a template journal document populated with results?
 #' @param analysisIdDocument   Which Analysis_id do you want to create the document for?
+#' @param onlyFetchData        Only fetch data for the analyses without fitting models. Setting this flag will overwrite your input provided to the runAnalyses and createCohorts parameters.
 #' @param verbosity            Sets the level of the verbosity. If the log level is at or higher in priority than the logger threshold, a message will print. The levels are:
 #'                                         \itemize{
 #'                                         \item{DEBUG}{Highest verbosity showing all debug statements}
@@ -114,6 +115,7 @@ execute <- function(connectionDetails,
                     createShiny = F,
                     createJournalDocument = F,
                     analysisIdDocument = 1,
+                    onlyFetchData = F,
                     verbosity = "INFO",
                     cdmVersion = 5,
                     cohortVariableSetting = NULL) {
@@ -127,7 +129,7 @@ execute <- function(connectionDetails,
     createPlpProtocol(outputFolder)
   }
   
-  if (createCohorts) {
+  if (createCohorts || onlyFetchData) {
     ParallelLogger::logInfo("Creating cohorts")
     createCohorts(connectionDetails = connectionDetails,
                   cdmDatabaseSchema = cdmDatabaseSchema,
@@ -214,6 +216,7 @@ execute <- function(connectionDetails,
       ensure_installed("DT")
       ensure_installed("VennDiagram")
       ensure_installed("htmltools")
+      ensure_installed("shinyWidgets")
       shinyDirectory <- system.file("shiny", "DiagnosticsExplorer", package = "PatientLevelPrediction")
       shinySettings <- list(dataFolder = file.path(outputFolder, 'diagnostics'))
       .GlobalEnv$shinySettings <- shinySettings
@@ -223,7 +226,13 @@ execute <- function(connectionDetails,
     
   }
   
-  if(runAnalyses){
+  if(runAnalyses || onlyFetchData){
+    if(onlyFetchData) {
+      ParallelLogger::logInfo("Only fetching data and not running predictions")
+    } else {
+      ParallelLogger::logInfo("Running predictions")
+    }
+    
     ParallelLogger::logInfo("Running predictions")
     predictionAnalysisListFile <- system.file("settings",
                                               "predictionAnalysisList.json",
@@ -240,6 +249,7 @@ execute <- function(connectionDetails,
     predictionAnalysisList$cdmVersion = cdmVersion
     predictionAnalysisList$outputFolder = outputFolder
     predictionAnalysisList$verbosity = verbosity
+    predictionAnalysisList$onlyFetchData = onlyFetchData
     
     if(!is.null(cohortVariableSetting)){
       ParallelLogger::logInfo("Adding custom covariates to analysis settings")
