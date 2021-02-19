@@ -20,6 +20,5 @@
 #'
 #' @docType package
 #' @name SkeletonPredictionStudy
-#' @import DatabaseConnector
 #' @importFrom magrittr %>%
 NULL

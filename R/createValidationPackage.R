@@ -7,10 +7,6 @@ createValidationPackage <- function(modelFolder,
                                     cohortVariableSetting = NULL){
   
   # json needs to contain the cohort details and packagename
-  ensure_installed("Hydra")
-  if(!is_installed("Hydra", version = '0.0.8')){
-    warning('Hydra need to be updated to use custom cohort covariates')
-  }
   Hydra::hydrate(specifications = jsonSettings, 
                  outputFolder=outputFolder)
   
@@ -95,34 +91,4 @@ transportCohort <- function(packageName = "SkeletonPredictionStudy",
             file.path(outputDir,'sql','sql_server', sqlFiles), overwrite = TRUE )
   
   return(TRUE)
-}
-
-
-
-# Borrowed from devtools: https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L44
-is_installed <- function (pkg, version = 0) {
-  installed_version <- tryCatch(utils::packageVersion(pkg), 
-                                error = function(e) NA)
-  !is.na(installed_version) && installed_version >= version
-}
-
-# Borrowed and adapted from devtools: https://github.com/hadley/devtools/blob/ba7a5a4abd8258c52cb156e7b26bb4bf47a79f0b/R/utils.r#L74
-ensure_installed <- function(pkg) {
-  if (!is_installed(pkg)) {
-    msg <- paste0(sQuote(pkg), " must be installed for this functionality.")
-    if (interactive()) {
-      message(msg, "\nWould you like to install it?")
-      if (utils::menu(c("Yes", "No")) == 1) {
-        if(pkg%in%c('Hydra')){
-          devtools::install_github(paste0('OHDSI/',pkg))
-        }else{
-          utils::install.packages(pkg)
-        }
-      } else {
-        stop(msg, call. = FALSE)
-      }
-    } else {
-      stop(msg, call. = FALSE)
-    }
-  }
 }
