@@ -126,6 +126,7 @@ execute <- function(connectionDetails,
   ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
   
   if(createProtocol){
+    ensure_installed('officer')
     createPlpProtocol(outputFolder)
   }
   
@@ -232,8 +233,7 @@ execute <- function(connectionDetails,
     } else {
       ParallelLogger::logInfo("Running predictions")
     }
-    
-    ParallelLogger::logInfo("Running predictions")
+  
     predictionAnalysisListFile <- system.file("settings",
                                               "predictionAnalysisList.json",
                                               package = "SkeletonPredictionStudy")
@@ -280,18 +280,26 @@ execute <- function(connectionDetails,
   }
   
   if (packageResults) {
+    ensure_installed("OhdsiSharing")
     ParallelLogger::logInfo("Packaging results")
     packageResults(outputFolder = outputFolder,
                    minCellCount = minCellCount)
   }
   
   if(createResultsDoc){
+    ensure_installed("officer")
+    ensure_installed("gridExtra")
+    ensure_installed("grDevices")
     createMultiPlpReport(analysisLocation=outputFolder,
                          protocolLocation = file.path(outputFolder,'protocol.docx'),
                          includeModels = F)
   }
   
   if(createValidationPackage){
+    ensure_installed("Hydra")
+    if(!is_installed("Hydra", version = '0.0.8')){
+      warning('Hydra need to be updated to use custom cohort covariates')
+    }
     predictionAnalysisListFile <- system.file("settings",
                                               "predictionAnalysisList.json",
                                               package = "SkeletonPredictionStudy")
@@ -314,6 +322,16 @@ execute <- function(connectionDetails,
   }
   
   if (createShiny) {
+    ensure_installed("plotly")
+    ensure_installed("ggplot2")
+    ensure_installed("reshape2")
+    ensure_installed("DT")
+    ensure_installed("htmltools")
+    ensure_installed("shinydashboard")
+    ensure_installed("shinyWidgets")
+    ensure_installed("shinycssloaders")
+    ensure_installed("shiny")
+    
     populateShinyApp(outputDirectory = file.path(outputFolder, 'ShinyApp'),
                      resultDirectory = outputFolder,
                      minCellCount = minCellCount,
@@ -321,6 +339,7 @@ execute <- function(connectionDetails,
   }
   
   if(createJournalDocument){
+    ensure_installed("Hydra")
     predictionAnalysisListFile <- system.file("settings",
                                               "predictionAnalysisList.json",
                                               package = "SkeletonPredictionStudy")
