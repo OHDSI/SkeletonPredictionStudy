@@ -2,11 +2,19 @@ createValidationPackage <- function(modelFolder,
                                     outputFolder,
                                     minCellCount = 5,
                                     databaseName = 'sharable name of development data',
-                                    jsonSettings,
-                                    analysisIds = NULL, 
-                                    cohortVariableSetting = NULL){
+                                    analysisIds = NULL,
+                                    skeletonVersion = 'v1.0.1'){
   
-  # json needs to contain the cohort details and packagename
+  # create validationJson
+  jsonSettings <- createValidationJson(modelFolder, 
+                                       analysisIds,
+                                       skeletonVersion)
+  
+  ParallelLogger::saveSettingsToJson(predictionAnalysisListFile, file.path(outputFolder, 'settings.json'))
+  jsonSettings <-  tryCatch({Hydra::loadSpecifications(file=file.path(outputFolder, 'settings.json'))},
+                                                     error=function(cond) {
+                                                       stop('Issue with json file...')
+                                                     })
   Hydra::hydrate(specifications = jsonSettings, 
                  outputFolder=outputFolder)
   
@@ -42,10 +50,12 @@ transportPlpModels <- function(analysesDir,
   filesIn <- file.path(analysesDir, files , 'plpResult')
   filesOut <- file.path(outputDir, files, 'plpResult')
   
-  cohortCovs <- c()
   for(i in 1:length(filesIn)){
     if(file.exists(filesIn[i])){
       plpResult <- PatientLevelPrediction::loadPlpResult(filesIn[i])
+      #updating the covariate dep
+      model$metaData$call$covariateSettings <- plpResultreplaceFunAttr(model$metaData$call$covariateSettings)
+      
       PatientLevelPrediction::transportPlp(plpResult,
                                            modelName= files[i], dataName=databaseName,
                                            outputFolder = filesOut[i],
@@ -55,23 +65,10 @@ transportPlpModels <- function(analysesDir,
                                            includeCalibrationSummary =T, includePredictionDistribution=T,
                                            includeCovariateSummary=T, save=T)
       
-      tempCohortCovs <- plpResult$covariateSummary$covariateId[plpResult$covariateSummary$analysisId == 456 & plpResult$covariateSummary$covariateValue !=0]
-      if(length(tempCohortCovs)!=0){
-        cohortCovs <- c(cohortCovs, tempCohortCovs)
-      }
     }
     
   }
   
-  if(length(cohortCovs)>0 & !is.null(cohortVariableSetting)){
-    # move the custom cohort covariates
-    pathToCustom <- system.file("settings", cohortVariableSetting, package = "SkeletonPredictionStudy")
-    cohortVarsToCreate <- utils::read.csv(pathToCustom)
-    temp <- cohortVarsToCreate$cohortId*1000+456
-    utils::write.csv(cohortVarsToCreate[temp%in%cohortCovs,], 
-              file.path(gsub('plp_models','settings', outputDir),'cohortVariableSetting.csv'), 
-              row.names = F)
-  }
   
 }
 
@@ -91,4 +88,87 @@ transportCohort <- function(packageName = "SkeletonPredictionStudy",
             file.path(outputDir,'sql','sql_server', sqlFiles), overwrite = TRUE )
   
   return(TRUE)
+}
+
+
+
+createValidationJson <- function(modelFolder, 
+                                 analysisIds,
+                                 skeletonVersion){
+  
+  predictionAnalysisListFile <- system.file("settings",
+                                            "predictionAnalysisList.json",
+                                            package = "SkeletonPredictionStudy")
+  
+  devJS <- jsonlite::read_json(predictionAnalysisListFile)
+  
+  valJS <- list()
+  
+  valJS$packageName <- paste0(devJS$packageName,'Validation')
+  valJS$skeletonType <- 'PatientLevelPredictionValidationStudy'
+  valJS$skeletonVersion <- skeletonVersion
+  
+  valJS$cohortDefinitions <- devJS$cohortDefinitions #update?
+  
+  valJS$modelSettings <- createModelJson(modelFolder, 
+                                         analysisIds) # pop, cov, modelLoc
+  
+  
+  #result <- jsonlite::serializeJSON(valJS)
+  return(valJS)
+}
+
+
+createModelJson <- function(modelFolder, 
+                            analysisIds){
+  
+  files <- dir(modelFolder, recursive = F, full.names = F)
+  files <- files[grep('Analysis_', files)]
+  
+  if(!is.null(analysisIds)){
+    #restricting to analysisIds
+    files <- files[gsub('Analysis_','',files)%in%analysisIds]
+  }
+  
+  modelList <- list()
+  length(modelList) <- length(files)
+  i <- 0
+  
+  for(file in files){
+    i <- i+1
+    filesIn <- file.path(modelFolder, file , 'plpResult')
+    
+    modelRes <- PatientLevelPrediction::loadPlpResult(filesIn)
+    
+    modelList[[i]] <- list()
+    modelList[[i]]$populationSettings <- modelRes$model$populationSettings
+    modelList[[i]]$covariateSettings <- modelRes$model$metaData$call$covariateSettings
+    modelList[[i]]$covariateSettings <- replaceFunAttr(modelList[[i]]$covariateSettings)
+    modelList[[i]]$plpDataSettings <- list(cohortId = modelRes$inputSetting$dataExtrractionSettings$cohortId,
+                                   outcomeIds = modelRes$inputSetting$dataExtrractionSettings$outcomeIds,
+                                   cdmVersion = modelRes$inputSetting$dataExtrractionSettings$cdmVersion,
+                                   firstExposureOnly = modelRes$inputSetting$dataExtrractionSettings$firstExposureOnly,
+                                   washoutPeriod = modelRes$inputSetting$dataExtrractionSettings$washoutPeriod,
+                                   studyStartDate = modelRes$inputSetting$dataExtrractionSettings$studyStartDate,
+                                   studyEndDate = modelRes$inputSetting$dataExtrractionSettings$studyEndDate)
+    
+    
+    modelList[[i]]$modelSettings <- list(type = modelRes$model$modelSettings$model,
+                                 analysisId = file,
+                                 varImp = modelRes$model$varImp[modelRes$model$varImp$covariateValue!=0,]
+                                 )
+  
+  }
+  
+  return(modelList)
+}
+
+
+replaceFunAttr <- function(x){
+  for(i in 1:length(x)){
+    attr(x[[i]], 'fun') <- gsub("SkeletonPredicionStudy::", 
+                               "SkeletonPredicionStudyValidation::", 
+                               attr(x[[i]], 'fun'))
+  }
+  return(x)
 }

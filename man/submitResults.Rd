@@ -4,16 +4,18 @@
 \alias{submitResults}
 \title{Submit the study results to the study coordinating center}
 \usage{
-submitResults(outputFolder, key, secret)
+submitResults(outputFolder, privateKeyFileName, remoteFolder, userName)
 }
 \arguments{
 \item{outputFolder}{Name of local folder where the results were generated; make sure to use forward slashes
 (/). Do not use a folder on a network drive since this greatly impacts
 performance.}
 
-\item{key}{The key string as provided by the study coordinator}
+\item{privateKeyFileName}{A character string denoting the path to an RSA private key.}
 
-\item{secret}{The secret string as provided by the study coordinator}
+\item{remoteFolder}{The remote folder to upload the file to.}
+
+\item{userName}{A character string containing the user name.}
 }
 \value{
 TRUE if the upload was successful.
@@ -22,6 +24,6 @@ TRUE if the upload was successful.
 Submit the study results to the study coordinating center
 }
 \details{
-This will upload the file \code{StudyResults.zip} to the study coordinating center using Amazon S3.
+This will upload the file \code{StudyResults.zip} to the OHDSI SFTP server
 This requires an active internet connection.
 }

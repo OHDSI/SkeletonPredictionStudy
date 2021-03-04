@@ -19,6 +19,7 @@ execute(
   runAnalyses = F,
   createResultsDoc = F,
   createValidationPackage = F,
+  skeletonVersion = "v1.0.1",
   analysesToValidate = NULL,
   packageResults = F,
   minCellCount = 5,
@@ -26,9 +27,9 @@ execute(
   createJournalDocument = F,
   analysisIdDocument = 1,
   onlyFetchData = F,
+  sampleSize = NULL,
   verbosity = "INFO",
-  cdmVersion = 5,
-  cohortVariableSetting = NULL
+  cdmVersion = 5
 )
 }
 \arguments{
@@ -72,6 +73,8 @@ settings or whether the prediction may not do well.}
 
 \item{createValidationPackage}{Create a package for sharing the models}
 
+\item{skeletonVersion}{The version of the validation skeleton to use}
+
 \item{analysesToValidate}{A vector of analysis ids (e.g., c(1,3,10)) specifying which analysese to export into validation package. Default is NULL and all are exported.}
 
 \item{packageResults}{Should results be packaged for later sharing?}
@@ -87,6 +90,8 @@ in packaged results.}
 
 \item{onlyFetchData}{Only fetch data for the analyses without fitting models. Setting this flag will overwrite your input provided to the runAnalyses and createCohorts parameters.}
 
+\item{sampleSize}{The number of patients in the target cohort to sample (if NULL uses all patients)}
+
 \item{verbosity}{Sets the level of the verbosity. If the log level is at or higher in priority than the logger threshold, a message will print. The levels are:
 \itemize{
 \item{DEBUG}{Highest verbosity showing all debug statements}
@@ -98,8 +103,6 @@ in packaged results.}
 }}
 
 \item{cdmVersion}{The version of the common data model}
-
-\item{cohortVariableSetting}{the name of the custom cohort covariate settings to use}
 }
 \description{
 Execute the Study
@@ -128,12 +131,13 @@ execute(connectionDetails,
         runAnalyses = T,
         createResultsDoc = T,
         createValidationPackage = T,
+        skeletonVersion = 'v1.0.1',
         packageResults = F,
         minCellCount = 5,
         createShiny = F,
+        sampleSize = 10000,
         verbosity = "INFO",
-        cdmVersion = 5,
-        cohortVariableSetting = NULL)
+        cdmVersion = 5)
 }
 
 }

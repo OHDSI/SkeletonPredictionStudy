@@ -17,29 +17,30 @@
 #' Submit the study results to the study coordinating center
 #'
 #' @details
-#' This will upload the file \code{StudyResults.zip} to the study coordinating center using Amazon S3.
+#' This will upload the file \code{StudyResults.zip} to the OHDSI SFTP server
 #' This requires an active internet connection.
 #'
 #' @param outputFolder   Name of local folder where the results were generated; make sure to use forward slashes
 #'                       (/). Do not use a folder on a network drive since this greatly impacts
 #'                       performance.
-#' @param key            The key string as provided by the study coordinator
-#' @param secret         The secret string as provided by the study coordinator
+#' @param privateKeyFileName   A character string denoting the path to an RSA private key.
+#' @param remoteFolder         The remote folder to upload the file to.
+#' @param userName             A character string containing the user name.
 #'
 #' @return
 #' TRUE if the upload was successful.
 #'
 #' @export
-submitResults <- function(outputFolder, key, secret) {
+submitResults <- function(outputFolder, privateKeyFileName, remoteFolder, userName) {
   zipName <- file.path(outputFolder, "StudyResults.zip")
   if (!file.exists(zipName)) {
     stop(paste("Cannot find file", zipName))
   }
   writeLines(paste0("Uploading file '", zipName, "' to study coordinating center"))
-  result <- OhdsiSharing::putS3File(file = zipName,
-                                    bucket = "ohdsi-study-skeleton",
-                                    key = key,
-                                    secret = secret)
+  result <- OhdsiSharing::sftpUploadFile(fileName = zipName, 
+                                         remoteFolder = "ohdsi-study-skeleton",
+                                         privateKeyFileName  = privateKeyFileName,
+                                         userName = userName)
   if (result) {
     writeLines("Upload complete")
   } else {
