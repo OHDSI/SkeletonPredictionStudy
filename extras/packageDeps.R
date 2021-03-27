@@ -7,8 +7,10 @@ packages <- c('DatabaseConnector',
               'reshape2',
               'SqlRender',
               'utils',
+              'Andromeda',
               'DT',
               'devtools',
+              'FeatureExtraction',
               'ggplot2',
               'grDevices',
               'gridExtra',
@@ -19,6 +21,7 @@ packages <- c('DatabaseConnector',
               'OhdsiSharing',
               'plotly',
               'rmarkdown',
+              'R.utils',
               'shiny',
               'shinycssloaders',
               'shinydashboard',
@@ -40,7 +43,7 @@ ensure_installed <- function(pkg) {
     if (interactive()) {
       message(msg, "\nWould you like to install it?")
       if (utils::menu(c("Yes", "No")) == 1) {
-        if(pkg%in%c('BigKnn','DatabaseConnector', 'SqlRender', 'Cyclops', 'FeatureExtraction', 'PatientLevelPrediction','OhdsiSharing', 'ParallelLogger')){
+        if(pkg%in%c('BigKnn','Andromeda','DatabaseConnector', 'SqlRender', 'Cyclops', 'FeatureExtraction', 'PatientLevelPrediction','OhdsiSharing', 'ParallelLogger')){
           devtools::install_github(paste0('OHDSI/',pkg))
         }else{
           utils::install.packages(pkg)

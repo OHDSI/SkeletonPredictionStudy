@@ -13,6 +13,7 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
                                                                        populationSettingId = c(1,2)),
                                        resrictModelCovs = data.frame(modelSettingId = c(1,1,2),
                                                                      covariateSettingId = c(1,2,1)),
+                                       executionSettings = list(),
                                        webApi = 'https://...',
                                        outputLocation = './',
                                        jsonName = 'predictionAnalysisList.json'){
@@ -20,13 +21,17 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
   json <- list()
   
   json$skeletonType <-  "PatientLevelPredictionStudy"
-  json$skeletonVersion <- "v0.0.1"  #update?
+  json$skeletonVersion <- "v0.0.5"  #update?
   json$packageName <- packageName
   json$description <- packageDescription
   
   json$createdBy <- createdBy
   json$organizationName <-  organizationName
   json$createdDate <- Sys.Date()
+  
+  json$runPlpArgs <- executionSettings
+  json$targetIds <- unique(targets$targetId)
+  json$outcomeIds <- unique(outcomes$outcomeId)
   
   cohortsToCreate <- getCohortDetails(targets, outcomes, covariateSettings)
   json$cohortDefinitions  <- getCohorts(cohortsToCreate,
@@ -55,8 +60,11 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
   }
   
   #json <- RJSONIO::toJSON(json)
-  ParallelLogger::saveSettingsToJson(json,
-                                     file.path(outputLocation, jsonName))
+  #ParallelLogger::saveSettingsToJson(json,
+  #                                   file.path(outputLocation, jsonName))
+  
+  exportJson <- RJSONIO::toJSON(json)
+  write(exportJson, file=file.path(outputLocation, jsonName))
   
   return(json)
 }
@@ -138,7 +146,7 @@ createSettings <- function(targets,
                            resrictModelCovs = NULL){
   
   #cartesian product of tId, oId, modelId, covId, popId
-  settings <- split(expand.grid(targetId = targets$targetId,
+  settings <- split(expand.grid(cohortId = targets$targetId,
                                 outcomeId = outcomes$outcomeId,
                                 populationSettingId = 1:length(populationSettings),
                                 modelSettingId = 1:length(modelList),

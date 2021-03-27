@@ -140,8 +140,7 @@ execute <- function(connectionDetails,
                   cohortDatabaseSchema = cohortDatabaseSchema,
                   cohortTable = cohortTable,
                   oracleTempSchema = oracleTempSchema,
-                  outputFolder = outputFolder,
-                  cohortVariableSetting = cohortVariableSetting)
+                  outputFolder = outputFolder)
   }
   
   if(runDiagnostic){
