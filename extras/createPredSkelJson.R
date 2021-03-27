@@ -31,7 +31,9 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
   
   json$runPlpArgs <- executionSettings
   json$targetIds <- unique(targets$targetId)
+  json$targetNames <- unique(targets$targetName)
   json$outcomeIds <- unique(outcomes$outcomeId)
+  json$outcomeNames <- unique(outcomes$outcomeName)
   
   cohortsToCreate <- getCohortDetails(targets, outcomes, covariateSettings)
   json$cohortDefinitions  <- getCohorts(cohortsToCreate,

@@ -73,8 +73,10 @@ populationSettings <- list(PatientLevelPrediction::createStudyPopulationSettings
   
 - The model settings list, this is a list of all the prediction model settings:  
 ```{r, eval=FALSE}        
-modelList <- list(PatientLevelPrediction::setLassoLogisticRegression(),
-                  PatientLevelPrediction::setAdaBoost())
+modelList <- list(list("LassoLogisticRegressionSettings" = list("variance" = 0.01)),
+                  list("AdaBoostSettings" =  list("nEstimators" = c(25,50),
+                                             "learningRate" = 0.1))
+                  )
 ``` 
 
 - The covariate settings - a list of the covariate setting options (if you want multiple covariate settings per plpData then you can create a lists of settings).  In the example below we create two covariate settings, the first settings contains standard FeatureExtraction features and a cohort covariate, the second setting contains standard FeatureExtracion features only.  You must specify the function name that is used to create the features and the settings for that function.  It is possible to add any custom function here as long as you add it into the study package:
@@ -102,6 +104,17 @@ resrictModelCovs = data.frame(modelSettingId = c(1,1,2),
                               covariateSettingId = c(1,2,1))
 ``` 
 
+Then finally in the design you need to specify the training split and whether you want to normalise covarites or filter redundant ones.
+
+```{r, eval=FALSE}
+executionSettings <- list(washoutPeriod = 365,
+                            minCovariateFraction = 0.001,
+                            normalizeData = T,
+                            testSplit = "stratified",
+                            testFraction = 0.25,
+                            splitSeed = 1250,
+                            nfold = 3)
+``` 
 
 ## Step 2: Creating the JSON
 
@@ -134,6 +147,7 @@ json <- createDevelopmentStudyJson(packageName = 'exampleStudy',
                            covariateSettings = covariateSettings,
                            resrictOutcomePops = resrictOutcomePops,
                            resrictModelCovs = resrictModelCovs,
+                           executionSettings = executionSettings,
                            webApi = webApi,
                            outputLocation = 'D:/testing',
                            jsonName = 'predictionAnalysisList.json')
@@ -167,8 +181,10 @@ webApi = 'https://yourWebAPI'
 
 populationSettings <- list(PatientLevelPrediction::createStudyPopulationSettings(riskWindowEnd = 365),
                            PatientLevelPrediction::createStudyPopulationSettings(riskWindowEnd = 730))
-modelList <- list(PatientLevelPrediction::setLassoLogisticRegression(),
-                  PatientLevelPrediction::setAdaBoost())
+modelList <- list(list("LassoLogisticRegressionSettings" = list("variance" = 0.01)),
+                  list("AdaBoostSettings" =  list("nEstimators" = c(25,50),
+                                             "learningRate" = 0.1))
+                  )
 covariateSettings <- list(list(list(fnct = 'createCovariateSettings',
                                     settings = FeatureExtraction::createCovariateSettings(useDemographicsGender = T)),
                                list(fnct = 'createCohortCovariateSettings', 
@@ -185,6 +201,14 @@ resrictOutcomePops <- data.frame(outcomeId = c(16428,16435),
 resrictModelCovs = data.frame(modelSettingId = c(1,1,2),
                               covariateSettingId = c(1,2,1))
 
+executionSettings <- list(washoutPeriod = 365,
+                            minCovariateFraction = 0.001,
+                            normalizeData = T,
+                            testSplit = "stratified",
+                            testFraction = 0.25,
+                            splitSeed = 1250,
+                            nfold = 3)
+
 json <- createDevelopmentStudyJson(packageName = 'exampleStudy',
                            packageDescription = 'an example of the skeleton',
                            createdBy = 'add name',
@@ -200,6 +224,7 @@ json <- createDevelopmentStudyJson(packageName = 'exampleStudy',
                            covariateSettings = covariateSettings,
                            resrictOutcomePops = resrictOutcomePops,
                            resrictModelCovs = resrictModelCovs,
+                           executionSettings = executionSettings,
                            webApi = webApi,
                            outputLocation = 'D:/testing',
                            jsonName = 'predictionAnalysisList.json')
