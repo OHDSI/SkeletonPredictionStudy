@@ -29,6 +29,7 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
   json$createdDate <- Sys.Date()
   
   json$runPlpArgs <- executionSettings
+  json$getPlpDataArgs<- list(washoutPeriod = 0)
   json$targetIds <- unique(targets$targetId)
   json$targetNames <- unique(targets$targetName)
   json$outcomeIds <- unique(outcomes$outcomeId)
