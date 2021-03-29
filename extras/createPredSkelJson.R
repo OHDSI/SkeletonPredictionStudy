@@ -9,10 +9,9 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
                                        populationSettings = list(),
                                        modelList = list(),
                                        covariateSettings = list(),
-                                       resrictOutcomePops = data.frame(outcomeId = c(4,5),
-                                                                       populationSettingId = c(1,2)),
-                                       resrictModelCovs = data.frame(modelSettingId = c(1,1,2),
-                                                                     covariateSettingId = c(1,2,1)),
+                                       resrictOutcomePops =NULL,
+                                       resrictModelCovs = NULL,
+                                       resrictTargetCovs = NULL,
                                        executionSettings = list(),
                                        webApi = 'https://...',
                                        outputLocation = './',
@@ -47,7 +46,8 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
                                   resrictOutcomePops,
                                   modelList, 
                                   covariateSettings,
-                                  resrictModelCovs)
+                                  resrictModelCovs,
+                                  resrictTargetCovs)
   
   
   # add the settings
@@ -55,7 +55,7 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
   
   json$modelSettings <- modelList
   
-  json$covariateSettings <- covariateSettings
+  json$covariateSettings <- addAttr(covariateSettings)
   
   if(!dir.exists(outputLocation)){
     dir.create(outputLocation, recursive = T)
@@ -65,11 +65,46 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
   #ParallelLogger::saveSettingsToJson(json,
   #                                   file.path(outputLocation, jsonName))
   
-  exportJson <- RJSONIO::toJSON(json)
+  exportJson <- RJSONIO::toJSON(json, digits = 23)
   write(exportJson, file=file.path(outputLocation, jsonName))
   
   return(json)
 }
+
+
+addAttr <- function(covariateSettings){
+  #find standard
+  if(!is.null(covariateSettings$fnct)){
+    if(covariateSettings$fnct =='createCovariateSettings'){
+      covariateSettings$settings$attr_fun <- attr(covariateSettings$settings,'fun')
+      covariateSettings$settings$attr_class <- attr(covariateSettings$settings,'class')
+    }
+    return(covariateSettings)
+  }
+  
+  if(!is.null(covariateSettings[[1]]$fnct)){
+    for(i in 1:length(covariateSettings)){
+        if(covariateSettings[[i]]$fnct =='createCovariateSettings'){
+          covariateSettings[[i]]$settings$attr_fun <- attr(covariateSettings[[i]]$settings,'fun')
+          covariateSettings[[i]]$settings$attr_class <- attr(covariateSettings[[i]]$settings,'class')
+        }
+    }
+    return(covariateSettings)
+  }
+  
+  if(class(covariateSettings)=='list' && is.null(covariateSettings$fnct))
+  for(i in 1:length(covariateSettings)){
+    for(j in 1:length(covariateSettings[[i]]))
+      if(covariateSettings[[i]][[j]]$fnct =='createCovariateSettings'){
+        covariateSettings[[i]][[j]]$settings$attr_fun <- attr(covariateSettings[[i]][[j]]$settings,'fun')
+          covariateSettings[[i]][[j]]$settings$attr_class <- attr(covariateSettings[[i]][[j]]$settings,'class')
+      }
+  }
+  
+  return(covariateSettings)
+  
+}
+
 
 getCohortId <- function(x){
   if('cohortId' %in% names(x)){
@@ -145,7 +180,8 @@ createSettings <- function(targets,
                            resrictOutcomePops = NULL,
                            modelList, 
                            covariateSettings,
-                           resrictModelCovs = NULL){
+                           resrictModelCovs = NULL,
+                           resrictTargetCovs= NULL){
   
   #cartesian product of tId, oId, modelId, covId, popId
   settings <- split(expand.grid(cohortId = targets$targetId,
@@ -165,6 +201,11 @@ createSettings <- function(targets,
   if(!is.null(resrictModelCovs)){
     ParallelLogger::logInfo('Restricting to specified modelId and covariateSettingId pairs...')
     settings <- merge(settings, resrictModelCovs, by = c('modelSettingId','covariateSettingId'))
+  }
+  # restrict to resrictTargetCovs if not null
+  if(!is.null(resrictTargetCovs)){
+    ParallelLogger::logInfo('Restricting to specified targetId and covariateSettingId pairs...')
+    settings <- merge(settings, resrictTargetCovs, by.x = c('cohortId','covariateSettingId'),by.y = c('targetId','covariateSettingId'))
   }
   
   #return result
