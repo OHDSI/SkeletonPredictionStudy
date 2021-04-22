@@ -4,7 +4,7 @@
 \alias{submitResults}
 \title{Submit the study results to the study coordinating center}
 \usage{
-submitResults(outputFolder, privateKeyFileName, remoteFolder, userName)
+submitResults(outputFolder, privateKeyFileName, userName, remoteFolder = NULL)
 }
 \arguments{
 \item{outputFolder}{Name of local folder where the results were generated; make sure to use forward slashes
@@ -13,9 +13,9 @@ performance.}
 
 \item{privateKeyFileName}{A character string denoting the path to an RSA private key.}
 
-\item{remoteFolder}{The remote folder to upload the file to.}
-
 \item{userName}{A character string containing the user name.}
+
+\item{remoteFolder}{The remote folder to upload the file to (default is 'patientLevelPrediction').}
 }
 \value{
 TRUE if the upload was successful.

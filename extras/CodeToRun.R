@@ -3,7 +3,7 @@ library(SkeletonPredictionStudy)
 # USER INPUTS
 #=======================
 # The folder where the study intermediate and result files will be written:
-outputFolder <- "./SkeletonPredictionStudyResults"
+outputFolder <- "C:/SkeletonPredictionStudyResults"
 
 # Details for connecting to the server:
 dbms <- "you dbms"

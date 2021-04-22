@@ -36,7 +36,9 @@ packageResults <- function(outputFolder,
   
   #create export subfolder in workFolder
   exportFolder <- file.path(outputFolder, "export")
-  dir.create(exportFolder, recursive = T)
+  if(!dir.exists(exportFolder)){
+    dir.create(exportFolder, recursive = T)
+  }
   
   for(folder in folders){
     #copy all plots across
@@ -83,6 +85,6 @@ packageResults <- function(outputFolder,
   # delete temp folder
   unlink(exportFolder, recursive = T)
   
-  writeLines(paste("\nStudy results are compressed and ready for sharing at:", zipName))
+  ParallelLogger::logInfo(paste("\nStudy results are compressed and ready for sharing at:", zipName))
   return(zipName)
 }
