@@ -15,7 +15,8 @@ The script below is an example to use for setting up your environment. There are
 - If you plan to run this package in an environment without Internet access, you should set the `RENV_PATHS_CACHE` to the `projectRootFolder` so that you can copy the contents of the `projectRootFolder` to the machine with access to your CDM to run the study. Additionally, you will want to make sure you download the `renv.lock` file from the computer with Internet access.
                                                                                                  
 ## Package setup steps
-                                                                                              The setup script below is used to install the **SkeletonPredictionStudy** package. You will need to modify this setup script as follows:
+
+The setup script below is used to install the **SkeletonPredictionStudy** package. You will need to modify this setup script as follows:
                                                                                               
 - Set the `projectRootFolder` variable to the directory specific to your environment. In this example we are using `C:/SkeletonPredictionStudy`. This root folder will serve a few purposes:
   - It will hold the R depdencies in subfolders in this directory.
