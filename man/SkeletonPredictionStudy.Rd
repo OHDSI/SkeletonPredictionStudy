@@ -4,3 +4,6 @@
 \name{SkeletonPredictionStudy}
 \alias{SkeletonPredictionStudy}
 \title{SkeletonPredictionStudy}
+\description{
+A package for running prediction model development studies using data in the OMOP CDM
+}

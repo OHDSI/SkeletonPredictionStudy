@@ -17,33 +17,31 @@
 #' Submit the study results to the study coordinating center
 #'
 #' @details
-#' This will upload the file \code{StudyResults.zip} to the study coordinating center using Amazon S3.
+#' This will upload the file \code{StudyResults.zip} to the OHDSI SFTP server
 #' This requires an active internet connection.
 #'
 #' @param outputFolder   Name of local folder where the results were generated; make sure to use forward slashes
 #'                       (/). Do not use a folder on a network drive since this greatly impacts
 #'                       performance.
-#' @param key            The key string as provided by the study coordinator
-#' @param secret         The secret string as provided by the study coordinator
+#' @param privateKeyFileName   A character string denoting the path to an RSA private key.
+#' @param userName             A character string containing the user name.
+#' @param remoteFolder         The remote folder to upload the file to (default is 'patientLevelPrediction').
 #'
 #' @return
 #' TRUE if the upload was successful.
 #'
 #' @export
-submitResults <- function(outputFolder, key, secret) {
+submitResults <- function(outputFolder, privateKeyFileName, userName, remoteFolder = NULL) {
   zipName <- file.path(outputFolder, "StudyResults.zip")
   if (!file.exists(zipName)) {
     stop(paste("Cannot find file", zipName))
   }
-  writeLines(paste0("Uploading file '", zipName, "' to study coordinating center"))
-  result <- OhdsiSharing::putS3File(file = zipName,
-                                    bucket = "ohdsi-study-skeleton",
-                                    key = key,
-                                    secret = secret)
-  if (result) {
-    writeLines("Upload complete")
-  } else {
-    writeLines("Upload failed. Please contact the study coordinator")
-  }
-  invisible(result)
+  ParallelLogger::logInfo(paste0("Uploading file '", zipName, "' to study coordinating center"))
+  tryCatch({OhdsiSharing::sftpUploadFile(fileName = zipName, 
+                                         remoteFolder = ifelse(is.null(remoteFolder), "patientLevelPrediction", remoteFolder),
+                                         privateKeyFileName  = privateKeyFileName,
+                                         userName = userName)},
+                     error = function(e){ParallelLogger::logInfo("Upload failed. Please contact the study coordinator"); ParallelLogger::logInfo(paste0('Error: ', e))}
+                     )
+  ParallelLogger::logInfo("Finished uploading")
 }

@@ -45,6 +45,7 @@
 #' @param runAnalyses          Run the model development
 #' @param createResultsDoc     Create a document containing the results of each prediction
 #' @param createValidationPackage  Create a package for sharing the models 
+#' @param skeletonVersion      The version of the validation skeleton to use
 #' @param analysesToValidate   A vector of analysis ids (e.g., c(1,3,10)) specifying which analysese to export into validation package. Default is NULL and all are exported.
 #' @param packageResults       Should results be packaged for later sharing?     
 #' @param minCellCount         The minimum number of subjects contributing to a count before it can be included 
@@ -53,6 +54,7 @@
 #' @param createJournalDocument Do you want to create a template journal document populated with results?
 #' @param analysisIdDocument   Which Analysis_id do you want to create the document for?
 #' @param onlyFetchData        Only fetch data for the analyses without fitting models. Setting this flag will overwrite your input provided to the runAnalyses and createCohorts parameters.
+#' @param sampleSize           The number of patients in the target cohort to sample (if NULL uses all patients)
 #' @param verbosity            Sets the level of the verbosity. If the log level is at or higher in priority than the logger threshold, a message will print. The levels are:
 #'                                         \itemize{
 #'                                         \item{DEBUG}{Highest verbosity showing all debug statements}
@@ -62,8 +64,7 @@
 #'                                         \item{ERROR}{Show error messages}
 #'                                         \item{FATAL}{Be silent except for fatal errors}
 #'                                         }                              
-#' @param cdmVersion           The version of the common data model 
-#' @param cohortVariableSetting  the name of the custom cohort covariate settings to use                         
+#' @param cdmVersion           The version of the common data model                       
 #'
 #' @examples
 #' \dontrun{
@@ -86,12 +87,13 @@
 #'         runAnalyses = T,
 #'         createResultsDoc = T,
 #'         createValidationPackage = T,
+#'         skeletonVersion = 'v1.0.1',
 #'         packageResults = F,
 #'         minCellCount = 5,
 #'         createShiny = F,
+#'         sampleSize = 10000,
 #'         verbosity = "INFO",
-#'         cdmVersion = 5,
-#'         cohortVariableSetting = NULL)
+#'         cdmVersion = 5)
 #' }
 #'
 #' @export
@@ -109,6 +111,7 @@ execute <- function(connectionDetails,
                     runAnalyses = F,
                     createResultsDoc = F,
                     createValidationPackage = F,
+                    skeletonVersion = 'v1.0.1',
                     analysesToValidate = NULL,
                     packageResults = F,
                     minCellCount= 5,
@@ -116,9 +119,9 @@ execute <- function(connectionDetails,
                     createJournalDocument = F,
                     analysisIdDocument = 1,
                     onlyFetchData = F,
+                    sampleSize = NULL,
                     verbosity = "INFO",
-                    cdmVersion = 5,
-                    cohortVariableSetting = NULL) {
+                    cdmVersion = 5) {
   
   if (!file.exists(outputFolder))
     dir.create(outputFolder, recursive = TRUE)
@@ -126,6 +129,7 @@ execute <- function(connectionDetails,
   ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
   
   if(createProtocol){
+    ensure_installed('officer')
     createPlpProtocol(outputFolder)
   }
   
@@ -136,8 +140,7 @@ execute <- function(connectionDetails,
                   cohortDatabaseSchema = cohortDatabaseSchema,
                   cohortTable = cohortTable,
                   oracleTempSchema = oracleTempSchema,
-                  outputFolder = outputFolder,
-                  cohortVariableSetting = cohortVariableSetting)
+                  outputFolder = outputFolder)
   }
   
   if(runDiagnostic){
@@ -149,7 +152,10 @@ execute <- function(connectionDetails,
     
     
     # extract settings
-    sampleSize = predictionAnalysisList$maxSampleSize
+    #sampleSize = predictionAnalysisList$maxSampleSize
+    if(!is.null(predictionAnalysisList$maxSampleSize)){
+      warning('sampleSize is now specified in execute() - ignoring json settings')
+    }
     cohortIds= predictionAnalysisList$cohortIds
     cohortNames = predictionAnalysisList$cohortNames
     outcomeIds = predictionAnalysisList$outcomeIds
@@ -232,8 +238,7 @@ execute <- function(connectionDetails,
     } else {
       ParallelLogger::logInfo("Running predictions")
     }
-    
-    ParallelLogger::logInfo("Running predictions")
+  
     predictionAnalysisListFile <- system.file("settings",
                                               "predictionAnalysisList.json",
                                               package = "SkeletonPredictionStudy")
@@ -251,69 +256,67 @@ execute <- function(connectionDetails,
     predictionAnalysisList$verbosity = verbosity
     predictionAnalysisList$onlyFetchData = onlyFetchData
     
-    if(!is.null(cohortVariableSetting)){
-      ParallelLogger::logInfo("Adding custom covariates to analysis settings")
-
-      pathToCustom <- system.file("settings", cohortVariableSetting, package = "SkeletonPredictionStudy")
-      cohortVarsToCreate <- utils::read.csv(pathToCustom)
-      cohortCov <- list()
-      length(cohortCov) <- nrow(cohortVarsToCreate)+1
-      cohortCov[[1]] <- FeatureExtraction::createCovariateSettings(useDemographicsAgeGroup = T)
-      
-      for(i in 1:nrow(cohortVarsToCreate)){
-        cohortCov[[1+i]] <- createCohortCovariateSettings(covariateName = as.character(cohortVarsToCreate$cohortName[i]),
-                                                          covariateId = cohortVarsToCreate$cohortId[i]*1000+456, count = F,
-                                                          cohortDatabaseSchema = cohortDatabaseSchema,
-                                                          cohortTable = cohortTable,
-                                                          cohortId = cohortVarsToCreate$atlasId[i],
-                                                          startDay=cohortVarsToCreate$startDay[i], 
-                                                          endDay=cohortVarsToCreate$endDay[i])
-      }
-      
-      for(i in 1:length(predictionAnalysisList$modelAnalysisList$covariateSettings)){
-        cohortCov[[1]] <- predictionAnalysisList$modelAnalysisList$covariateSettings[[i]]
-        predictionAnalysisList$modelAnalysisList$covariateSettings[[i]] <- cohortCov
-      }
+    if(!is.null(predictionAnalysisList$maxSampleSize)){
+      warning('sampleSize is now specified in execute() - ignoring json settings')
+    }
+    predictionAnalysisList$maxSampleSize <- sampleSize
+    
+    
+    # make backwards compatible:
+    if(class(predictionAnalysisList$modelAnalysisList$covariateSettings[[1]])=='covariateSettings'){
+      predictionAnalysisList$modelAnalysisList$covariateSettings <- predictionAnalysisList$modelAnalysisList$covariateSettings
+    }else{
+      predictionAnalysisList$modelAnalysisList$covariateSettings <- evaluateCovariateSettings(covariateSettings = predictionAnalysisList$modelAnalysisList$covariateSettings,
+                                                                                              cohortDatabaseSchema = cohortDatabaseSchema,
+                                                                                              cohortTable = cohortTable)
     }
     
     result <- do.call(PatientLevelPrediction::runPlpAnalyses, predictionAnalysisList)
   }
   
   if (packageResults) {
+    ensure_installed("OhdsiSharing")
     ParallelLogger::logInfo("Packaging results")
     packageResults(outputFolder = outputFolder,
                    minCellCount = minCellCount)
   }
   
   if(createResultsDoc){
+    ensure_installed("officer")
+    ensure_installed("gridExtra")
+    ensure_installed("grDevices")
     createMultiPlpReport(analysisLocation=outputFolder,
                          protocolLocation = file.path(outputFolder,'protocol.docx'),
                          includeModels = F)
   }
   
   if(createValidationPackage){
-    predictionAnalysisListFile <- system.file("settings",
-                                              "predictionAnalysisList.json",
-                                              package = "SkeletonPredictionStudy")
-    jsonSettings <-  tryCatch({Hydra::loadSpecifications(file=predictionAnalysisListFile)},
-                              error=function(cond) {
-                                stop('Issue with json file...')
-                              })
-    pn <- jsonlite::fromJSON(jsonSettings)$packageName
-    jsonSettings <- gsub(pn,paste0(pn,'Validation'),jsonSettings)
-    jsonSettings <- gsub('PatientLevelPredictionStudy','PatientLevelPredictionValidationStudy',jsonSettings)
-    
+    ensure_installed("Hydra")
+    if(!is_installed("Hydra", version = '0.0.8')){
+      warning('Hydra need to be updated to use custom cohort covariates')
+    }
+
     # TODO update to move cohorts over and edit cohort covariate to update cohort setting detail
     createValidationPackage(modelFolder = outputFolder, 
                             outputFolder = file.path(outputFolder, paste0(pn,'Validation')),
                             minCellCount = minCellCount,
                             databaseName = cdmDatabaseName,
-                            jsonSettings = jsonSettings,
                             analysisIds = analysesToValidate,
-                            cohortVariableSetting = cohortVariableSetting)
+                            skeletonVersion = skeletonVersion)  
   }
   
   if (createShiny) {
+    ensure_installed("plotly")
+    ensure_installed("ggplot2")
+    ensure_installed("reshape2")
+    ensure_installed("DT")
+    ensure_installed("htmltools")
+    ensure_installed("shinydashboard")
+    ensure_installed("shinyWidgets")
+    ensure_installed("shinycssloaders")
+    ensure_installed("shiny")
+    ensure_installed("R.utils")
+    
     populateShinyApp(outputDirectory = file.path(outputFolder, 'ShinyApp'),
                      resultDirectory = outputFolder,
                      minCellCount = minCellCount,
@@ -321,6 +324,7 @@ execute <- function(connectionDetails,
   }
   
   if(createJournalDocument){
+    ensure_installed("Hydra")
     predictionAnalysisListFile <- system.file("settings",
                                               "predictionAnalysisList.json",
                                               package = "SkeletonPredictionStudy")

@@ -17,9 +17,10 @@
 # limitations under the License.
 
 #' SkeletonPredictionStudy
+#' 
+#' @description A package for running prediction model development studies using data in the OMOP CDM
 #'
 #' @docType package
 #' @name SkeletonPredictionStudy
-#' @import DatabaseConnector
 #' @importFrom magrittr %>%
 NULL
