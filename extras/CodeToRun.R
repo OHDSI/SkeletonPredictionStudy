@@ -46,6 +46,7 @@ runDiagnostic <- FALSE
 viewDiagnostic <- FALSE
 # want to run the prediction study? Set below to TRUE
 runAnalyses <- TRUE
+sampleSize <- NULL # edit this to the number to sample if needed
 # want to populate the protocol with the results? Set below to TRUE
 createResultsDoc <- FALSE
 # want to create a validation package with the developed models? Set below to TRUE
@@ -82,7 +83,8 @@ execute(connectionDetails = connectionDetails,
         minCellCount= minCellCount,
         createShiny = createShiny,
         createJournalDocument = createJournalDocument,
-        analysisIdDocument = analysisIdDocument)
+        analysisIdDocument = analysisIdDocument,
+        sampleSize = sampleSize)
 
 # Uncomment and run the next line to see the shiny results:
 # PatientLevelPrediction::viewMultiplePlp(outputFolder)
