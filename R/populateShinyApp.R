@@ -95,7 +95,7 @@ populateShinyApp <- function(outputDirectory = './ShinyApp',
       for(valFolder in valFolders){
         
         # get the analysisIds
-        valSubfolders <- dir(file.path(resultDirectory,'Validation',valFolder), full.names = F)
+        valSubfolders <- dir(file.path(resultDirectory,'Validation',valFolder), full.names = F, pattern = 'Analysis')
         if(length(valSubfolders)!=0){
           for(valSubfolder in valSubfolders ){
             valOut <- file.path(valFolder,valSubfolder)
