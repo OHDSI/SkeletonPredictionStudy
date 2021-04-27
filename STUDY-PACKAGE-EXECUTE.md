@@ -33,6 +33,10 @@ oracleTempSchema <- NULL
 
 # table name where the cohorts will be generated
 cohortTable <- 'SkeletonPredictionStudyCohort'
+
+
+# replace NULL with number to sample if needed
+sampleSize <- NULL
 #=======================
 
 execute(connectionDetails = connectionDetails,
@@ -50,7 +54,8 @@ execute(connectionDetails = connectionDetails,
         createResultsDoc = F,
         packageResults = F,
         createValidationPackage = F,
-        minCellCount= 5)
+        minCellCount= 5,
+        sampleSize = sampleSize)
 ```
 
 The 'createCohorts' option will create the target and outcome cohorts into cohortDatabaseSchema.cohortTable if set to T.  The 'runAnalyses' option will create/extract the data for each prediction problem setting (each Analysis), develop a prediction model, internally validate it if set to T.  The results of each Analysis are saved in the 'outputFolder' directory under the subdirectories 'Analysis_1' to 'Analysis_N', where N is the total analyses specified.  After running execute with 'runAnalyses set to T, a 'Validation' subdirectory will be created in the 'outputFolder' directory where you can add the external validation results to make them viewable in the shiny app or journal document that can be automatically generated.

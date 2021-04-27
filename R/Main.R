@@ -111,7 +111,7 @@ execute <- function(connectionDetails,
                     runAnalyses = F,
                     createResultsDoc = F,
                     createValidationPackage = F,
-                    skeletonVersion = 'v1.0.1',
+                    skeletonVersion = 'v0.0.1',
                     analysesToValidate = NULL,
                     packageResults = F,
                     minCellCount= 5,
@@ -162,8 +162,8 @@ execute <- function(connectionDetails,
     outcomeNames = predictionAnalysisList$outcomeNames
     
     tars <- do.call(rbind, lapply(predictionAnalysisList$modelAnalysisList$populationSettings, function(x){
-      c(x$riskWindowStart, ifelse(x$addExposureDaysToStart==T,'cohort end','cohort start'), 
-        x$riskWindowEnd, ifelse(x$addExposureDaysToEnd==T,'cohort end','cohort start'))}))
+      c(x$riskWindowStart, x$startAnchor, 
+        x$riskWindowEnd, x$endAnchor)}))
     riskWindowStart = tars[,1]
     startAnchor = tars[,2]
     riskWindowEnd = tars[,3]
@@ -298,7 +298,7 @@ execute <- function(connectionDetails,
 
     # TODO update to move cohorts over and edit cohort covariate to update cohort setting detail
     createValidationPackage(modelFolder = outputFolder, 
-                            outputFolder = file.path(outputFolder, paste0(pn,'Validation')),
+                            outputFolder = outputFolder,
                             minCellCount = minCellCount,
                             databaseName = cdmDatabaseName,
                             analysisIds = analysesToValidate,
