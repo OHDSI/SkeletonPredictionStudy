@@ -45,6 +45,8 @@ getMeasurementCovariateData <- function(connection,
   
   # to get table 1 - take source values and then map them - dont map in SQL
   
+  ParallelLogger::logInfo(paste0('Starting extracting measurement: ', covariateSettings$covariateName))
+  
   # Some SQL to construct the covariate:
   sql <- paste("select c.@row_id_field AS row_id, measurement_concept_id, unit_concept_id,",
                "{@lnAgeInteraction}?{LOG(YEAR(c.cohort_start_date)-p.year_of_birth)*}:{{@ageInteraction}?{(YEAR(c.cohort_start_date)-p.year_of_birth)*}}",
@@ -74,11 +76,23 @@ getMeasurementCovariateData <- function(connection,
   covariates <- DatabaseConnector::querySql(connection, sql)
   # Convert colum names to camelCase:
   colnames(covariates) <- SqlRender::snakeCaseToCamelCase(colnames(covariates))
+  
+  ParallelLogger::logInfo(paste0('Got measurement data'))
 
   # map data:
   covariates <- covariates[!is.na(covariates$valueAsNumber),]
   covariates <- covariateSettings$scaleMap(covariates)
+  ParallelLogger::logInfo(paste0('Mapped measurement to uniform scale'))
   
+  ParallelLogger::logInfo(paste0('Min value: ', min(covariates$valueAsNumber)))
+  ParallelLogger::logInfo(paste0('Max value: ', max(covariates$valueAsNumber)))
+  
+  # convert due to speed issue if not double
+  covariates$rowId <- as.double(covariates$rowId)
+  covariates$indexTime <- as.double(covariates$indexTime)
+  covariates$valueAsNumber <- as.double(covariates$valueAsNumber)
+  covariates$rawValue <- as.double(covariates$rawValue)
+
   # aggregate data:
   if(covariateSettings$aggregateMethod == 'max'){
     covariates <- covariates %>% dplyr::group_by(rowId) %>%
@@ -98,15 +112,24 @@ getMeasurementCovariateData <- function(connection,
                        covariateValueSource = median(rawValue))
   } else{
     last <- covariates %>% dplyr::group_by(rowId) %>%
-      dplyr::summarize(lastTime = min(indexTime))
+      dplyr::summarize(lastTime = min(indexTime)) %>%
+      dplyr::ungroup()
+    
+    ParallelLogger::logInfo(paste0('Finished group by'))
+    
     covariates <- merge(covariates,last, 
           by.x = c('rowId','indexTime'), 
           by.y = c('rowId','lastTime') )
     
+    ParallelLogger::logInfo(paste0('Finished Merging'))
+    
     covariates <- covariates %>% dplyr::group_by(rowId) %>%
       dplyr::summarize(covariateValue = mean(valueAsNumber),
-                       covariateValueSource = mean(rawValue))
+                       covariateValueSource = mean(rawValue)) %>%
+      dplyr::ungroup()
   }
+  
+  ParallelLogger::logInfo(paste0('Aggregated measurement data per subject'))
   
   # add covariateID:
   covariates$covariateId <- covariateSettings$covariateId
@@ -191,6 +214,10 @@ getMeasurementCovariateData <- function(connection,
                                  analysisRef = analysisRef)
   attr(result, "metaData") <- metaData
   class(result) <- "CovariateData"	
+  
+  
+  ParallelLogger::logInfo(paste0('Done extracting measurement: ', covariateSettings$covariateName))
+  
   return(result)
 }
 
