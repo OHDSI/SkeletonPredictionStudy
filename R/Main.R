@@ -45,6 +45,7 @@
 #' @param runAnalyses          Run the model development
 #' @param createResultsDoc     Create a document containing the results of each prediction
 #' @param createValidationPackage  Create a package for sharing the models 
+#' @param saveModelsToJson     Whether to save the models as json for validation (not all models are supported)
 #' @param skeletonVersion      The version of the validation skeleton to use
 #' @param analysesToValidate   A vector of analysis ids (e.g., c(1,3,10)) specifying which analysese to export into validation package. Default is NULL and all are exported.
 #' @param packageResults       Should results be packaged for later sharing?     
@@ -87,6 +88,7 @@
 #'         runAnalyses = T,
 #'         createResultsDoc = T,
 #'         createValidationPackage = T,
+#'         saveModelsToJson = T,
 #'         skeletonVersion = 'v1.0.1',
 #'         packageResults = F,
 #'         minCellCount = 5,
@@ -111,6 +113,7 @@ execute <- function(connectionDetails,
                     runAnalyses = F,
                     createResultsDoc = F,
                     createValidationPackage = F,
+                    saveModelsToJson = T,
                     skeletonVersion = 'v0.0.1',
                     analysesToValidate = NULL,
                     packageResults = F,
@@ -296,13 +299,32 @@ execute <- function(connectionDetails,
       warning('Hydra need to be updated to use custom cohort covariates')
     }
 
-    # TODO update to move cohorts over and edit cohort covariate to update cohort setting detail
-    createValidationPackage(modelFolder = outputFolder, 
-                            outputFolder = outputFolder,
-                            minCellCount = minCellCount,
-                            databaseName = cdmDatabaseName,
-                            analysisIds = analysesToValidate,
-                            skeletonVersion = skeletonVersion)  
+    if(!saveModelsToJson){
+      ParallelLogger::logInfo('Creating validation using non-JSON models')
+      createValidationPackage(modelFolder = outputFolder, 
+                              outputFolder = outputFolder,
+                              minCellCount = minCellCount,
+                              databaseName = cdmDatabaseName,
+                              analysisIds = analysesToValidate,
+                              skeletonVersion = skeletonVersion)} 
+    else{
+      ParallelLogger::logInfo('Creating validation using models saved to JSON files')
+      tryCatch({
+        
+        createValidationPackageJson(devPackageName = 'SkeletonPredictionStudy',
+                                    devDatabaseName = cdmDatabaseName,
+                                    analysisLocation = outputFolder,
+                                    analysisIds = analysesToValidate,
+                                    outputFolder = outputFolder,
+                                    packageName = 'SkeletonPredictionStudyValidation',
+                                    description = 'validating models in SkeletonPredictionStudy',
+                                    skeletonVersion = skeletonVersion,
+                                    createdBy = 'anonymous',
+                                    organizationName = 'none')
+        
+        
+      }, error = function(e){ParallelLogger::logError(e)})
+    }  
   }
   
   if (createShiny) {
