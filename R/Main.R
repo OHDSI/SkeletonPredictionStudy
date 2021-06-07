@@ -337,7 +337,6 @@ execute <- function(connectionDetails,
     ensure_installed("shinyWidgets")
     ensure_installed("shinycssloaders")
     ensure_installed("shiny")
-    ensure_installed("R.utils")
     
     populateShinyApp(outputDirectory = file.path(outputFolder, 'ShinyApp'),
                      resultDirectory = outputFolder,

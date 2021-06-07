@@ -741,6 +741,12 @@
 			"Source" : "Repository",
 			"Repository" : "CRAN"
 		},
+		"RJSONIO" : {
+			"Package" : "RJSONIO",
+			"Version" : "1.3-1.4",
+			"Source" : "Repository",
+			"Repository" : "CRAN"
+		},
 		"rms" : {
 			"Package" : "rms",
 			"Version" : "6.2-0",
@@ -951,6 +957,36 @@
 			"Source" : "Repository",
 			"Repository" : "CRAN"
 		},
+		"formatR" : {
+			"Package" : "formatR",
+			"Version" : "1.8",
+			"Source" : "Repository",
+			"Repository" : "CRAN"
+		},
+		"futile.options" : {
+			"Package" : "futile.options",
+			"Version" : "1.0.1",
+			"Source" : "Repository",
+			"Repository" : "CRAN"
+		},
+		"lambda.r" : {
+			"Package" : "lambda.r",
+			"Version" : "1.2.4",
+			"Source" : "Repository",
+			"Repository" : "CRAN"
+		},
+		"futile.logger" : {
+			"Package" : "futile.logger",
+			"Version" : "1.4.3",
+			"Source" : "Repository",
+			"Repository" : "CRAN"
+		},
+		"VennDiagram" : {
+			"Package" : "VennDiagram",
+			"Version" : "1.6.20",
+			"Source" : "Repository",
+			"Repository" : "CRAN"
+		},
 		"renv" : {
 			"Package" : "renv",
 			"Version" : "0.13.2",
@@ -966,6 +1002,26 @@
 			"RemoteRepo" : "FeatureExtraction",
 			"RemoteUsername" : "ohdsi",
 			"RemoteRef" : "v3.1.1"
+		},
+		"Hydra" : {
+			"Package" : "Hydra",
+			"Version" : "0.1.2",
+			"Source" : "GitHub",
+			"RemoteType" : "github",
+			"RemoteHost" : "api.github.com",
+			"RemoteRepo" : "Hydra",
+			"RemoteUsername" : "ohdsi",
+			"RemoteRef" : "v0.1.2"
+		},
+		"OhdsiSharing" : {
+			"Package" : "OhdsiSharing",
+			"Version" : "0.2.2",
+			"Source" : "GitHub",
+			"RemoteType" : "github",
+			"RemoteHost" : "api.github.com",
+			"RemoteRepo" : "OhdsiSharing",
+			"RemoteUsername" : "ohdsi",
+			"RemoteRef" : "v0.2.2"
 		},
 		"PatientLevelPrediction" : {
 			"Package" : "PatientLevelPrediction",
