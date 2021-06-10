@@ -134,6 +134,7 @@ createModelSettingsJson <- function(modelName, plpModel,
     plpModel$populationSettings$attrition <- NULL
     model$populationSettings <- plpModel$populationSettings
   } else{
+    
     model$populationSettings <- populationSettings
   }
   
@@ -238,10 +239,20 @@ convertCovariateSettings <- function(covariateSettings){
 
 
 getCovariateCohorts <- function(covariateSettings){
-  cohortIds <- do.call('c', lapply(covariateSettings, getCohorts))
-  return(cohortIds)
+  
+  if(is.null(covariateSettings$attr_fun)){
+    cohortIds <- do.call('c', lapply(covariateSettings, getCohorts))
+    return(cohortIds)
+  } else{
+    return(NULL)
+  }
 }
+
 getCohorts <- function(covariateSettings){
+  
+  if(class(covariateSettings)!='list'){
+    return(NULL)
+  }
   
   if(covariateSettings$fnct %in% c("createCohortCovariateSettings", "createMeasurementCohortCovariateSettings")){
     return(covariateSettings$settings$cohortId)

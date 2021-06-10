@@ -7,7 +7,7 @@ createValidationPackage <- function(modelFolder,
   
   # create validationJson
   ParallelLogger::logInfo('Creating validation json list')
-  jsonSettings <- createValidationJson(modelFolder, 
+  jsonSettings <- createValidationJsonOld(modelFolder, 
                                        analysisIds,
                                        skeletonVersion)
   pn <- jsonSettings$packageName
@@ -99,7 +99,7 @@ transportCohort <- function(packageName = "SkeletonPredictionStudy",
 
 
 
-createValidationJson <- function(modelFolder, 
+createValidationJsonOld <- function(modelFolder, 
                                  analysisIds,
                                  skeletonVersion){
   

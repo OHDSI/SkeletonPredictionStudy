@@ -19,7 +19,8 @@ execute(
   runAnalyses = F,
   createResultsDoc = F,
   createValidationPackage = F,
-  skeletonVersion = "v1.0.1",
+  saveModelsToJson = T,
+  skeletonVersion = "v0.0.1",
   analysesToValidate = NULL,
   packageResults = F,
   minCellCount = 5,
@@ -72,6 +73,8 @@ settings or whether the prediction may not do well.}
 \item{createResultsDoc}{Create a document containing the results of each prediction}
 
 \item{createValidationPackage}{Create a package for sharing the models}
+
+\item{saveModelsToJson}{Whether to save the models as json for validation (not all models are supported)}
 
 \item{skeletonVersion}{The version of the validation skeleton to use}
 
@@ -131,6 +134,7 @@ execute(connectionDetails,
         runAnalyses = T,
         createResultsDoc = T,
         createValidationPackage = T,
+        saveModelsToJson = T,
         skeletonVersion = 'v1.0.1',
         packageResults = F,
         minCellCount = 5,

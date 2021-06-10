@@ -80,7 +80,7 @@ packageResults <- function(outputFolder,
   
   
   ### Add all to zip file ###
-  zipName <- paste0(outputFolder, '.zip')
+  zipName <- paste0(file.path(outputFolder, 'resultsToShare.zip'))
   OhdsiSharing::compressFolder(exportFolder, zipName)
   # delete temp folder
   unlink(exportFolder, recursive = T)
