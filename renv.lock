@@ -623,7 +623,7 @@
 		},
 		"zip" : {
 			"Package" : "zip",
-			"Version" : "2.0.4",
+			"Version" : "2.2.0",
 			"Source" : "Repository",
 			"Repository" : "CRAN"
 		},
@@ -1005,13 +1005,13 @@
 		},
 		"Hydra" : {
 			"Package" : "Hydra",
-			"Version" : "0.1.2",
+			"Version" : "0.2.0",
 			"Source" : "GitHub",
 			"RemoteType" : "github",
 			"RemoteHost" : "api.github.com",
 			"RemoteRepo" : "Hydra",
 			"RemoteUsername" : "ohdsi",
-			"RemoteRef" : "v0.1.2"
+			"RemoteRef" : "v0.2.0"
 		},
 		"OhdsiSharing" : {
 			"Package" : "OhdsiSharing",
