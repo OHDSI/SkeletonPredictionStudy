@@ -49,9 +49,11 @@ createPlpProtocol <- function(outputLocation = getwd()){
   tar <- unique(
     lapply(json$populationSettings, function(x) 
       paste0("Risk Window Start:  ",x$riskWindowStart,
-             ', Add Exposure Days to Start:  ',x$addExposureDaysToStart,
+             ' day/s from ',ifelse(is.null(x$addExposureDaysToStart),x$startAnchor, ifelse(x$addExposureDaysToStart, 'cohort end', 'cohort start')),
              ', Risk Window End:  ', x$riskWindowEnd,
-             ', Add Exposure Days to End:  ', x$addExposureDaysToEnd)))
+             ' days from ',ifelse(is.null(x$addExposureDaysToEnd),x$endAnchor, ifelse(x$addExposureDaysToEnd, 'cohort end', 'cohort start'))
+             )
+      ))
   tarDF <- as.data.frame(rep(times = length(tar),''), stringsAsFactors = FALSE)
   names(tarDF) <- c("Time at Risk")
   for(i in 1:length(tar)){
@@ -60,7 +62,9 @@ createPlpProtocol <- function(outputLocation = getwd()){
   tarList <- paste(tarDF$`Time at Risk`, collapse = ', ')
   tarListDF <- as.data.frame(tarList)
   
-  covSettings <- lapply(json$covariateSettings, function(x) cbind(names(x), unlist(lapply(x, function(x2) paste(x2, collapse=', '))))) 
+
+  covSettings <- formatCovariateSettings(json$covariateSettings)
+
   
   popSettings <- lapply(json$populationSettings, function(x) cbind(names(x), unlist(lapply(x, function(x2) paste(x2, collapse=', '))))) 
   
@@ -391,7 +395,7 @@ createPlpProtocol <- function(outputLocation = getwd()){
     modelSettings <- lapply(json$modelSettings[[i]], function(x) cbind(names(x), unlist(lapply(x, function(x2) paste(x2, collapse=', '))))) 
     
     oneModelSettings <- as.data.frame(modelSettings)
-    names(oneModelSettings) <- c("Covariates","Settings")
+    names(oneModelSettings) <- c("Settings","Values")
     
     doc <- doc %>% 
       officer::body_add_fpar(
@@ -421,9 +425,10 @@ createPlpProtocol <- function(outputLocation = getwd()){
                           style="Normal") %>%
     officer::body_add_par("") 
   
-  for(i in 1:length(covSettings)){
-    oneCovSettings <- as.data.frame(covSettings[i])
-    names(oneCovSettings) <- c("Covariates","Settings")
+  for(i in 1:length(unique(covSettings$covariateName))){
+    #oneCovSettings <- as.data.frame(covSettings[i])
+    #names(oneCovSettings) <- c("Covariates","Settings")
+    oneCovSettings <- covSettings[covSettings$covariateName == unique(covSettings$covariateName)[i], ]
     
     doc <- doc %>% 
       officer::body_add_fpar(
@@ -588,17 +593,20 @@ createPlpProtocol <- function(outputLocation = getwd()){
     cohortsForConceptSet <- rbind(outcomeCohortsForConceptSet,targetCohortsForConceptSet)
     cohortsForConceptSet <- cohortsForConceptSet[,1:2]
     
-    doc <- doc %>% 
-      officer::body_add_fpar(
-        officer::fpar(
-          officer::ftext(conceptSetId, prop = style_table_title)
-        )) %>%
-      officer::body_add_table(conceptSetTable[,c(1,2,4,6,7,8,9,10,11,12)], header = TRUE, style = "Table Professional") %>% 
-      officer::body_add_par("") %>%
-      officer::body_add_par("Cohorts that use this Concept Set:", style = "Normal") %>%
-      officer::body_add_par("") %>%
-      officer::body_add_table(cohortsForConceptSet, header = TRUE, style = "Table Professional") %>%
-      officer::body_add_par("")
+    if(ncol(conceptSetTable)>0){
+      
+      doc <- doc %>% 
+        officer::body_add_fpar(
+          officer::fpar(
+            officer::ftext(conceptSetId, prop = style_table_title)
+          )) %>%
+        officer::body_add_table(conceptSetTable[,c(1,2,4,6,7,8,9,10,11,12)], header = TRUE, style = "Table Professional") %>% 
+        officer::body_add_par("") %>%
+        officer::body_add_par("Cohorts that use this Concept Set:", style = "Normal") %>%
+        officer::body_add_par("") %>%
+        officer::body_add_table(cohortsForConceptSet, header = TRUE, style = "Table Professional") %>%
+        officer::body_add_par("")
+    }
     
   }
   
@@ -856,4 +864,77 @@ getModelFromSettings <- function(analysisLocation,x){
   
   
   return(result)
+}
+
+
+
+getCovDF <- function(covariateSettings){
+  covariates <- data.frame(settings = names(unlist(covariateSettings$settings)),
+                           values = unlist(covariateSettings$settings))
+  covariates$type = covariateSettings$fnct
+  return(covariates)
+}
+
+formatCovariateSettings <- function(covariateSettings){
+  
+  
+  if(!is.null(covariateSettings$fnct)){
+    
+    covariates <- getCovDF(covariateSettings)
+    covariates$covariateName <- 1
+    
+  }else if(!is.null(covariateSettings[[1]]$fnct)){
+    
+    covariatesTemp <- lapply(covariateSettings, getCovDF)
+    for(i in 1:length(covariateSettings)){
+      covariatesTemp[[i]]$covariateName <- i
+    }
+    covariates  <- do.call(rbind, covariatesTemp)
+    
+    
+  }else if(length(names(covariateSettings[[1]][[1]])%in%'fnct')>0){
+    
+    covariates <- c()
+    
+    for(i in 1:length(covariateSettings)){
+    covariatesTemp <- lapply(covariateSettings[[i]], getCovDF)
+    covariatesTemp  <- do.call(rbind, covariatesTemp)
+    covariatesTemp$covariateName <- i
+    
+    covariates <- rbind(covariates, covariatesTemp)
+    }
+    
+  }else{
+    if(class(covariateSettings)=='list'){
+      #code for when multiple covariateSettings
+      covariates <- c() 
+      for(i in 1:length(covariateSettings)){
+        if(attr(covariateSettings[[i]],'fun')=='getDbDefaultCovariateData'){
+          covariatesTemp <- data.frame(covariateName = i,
+                                       Setting = names(covariateSettings[[i]]), 
+                                       Value = unlist(lapply(covariateSettings[[i]], 
+                                                                    function(x) paste0(x, 
+                                                                                       collapse='-'))))
+        } else{
+          covariatesTemp <- data.frame(covariateName =i,
+                                       Setting = covariateSettings[[i]]$covariateName,
+                                       Value = ifelse(sum(names(covariateSettings[[i]])%in%c("startDay","endDay"))>0,
+                                                             paste(names(covariateSettings[[i]])[names(covariateSettings[[i]])%in%c("startDay","endDay")],
+                                                                   covariateSettings[[i]][names(covariateSettings[[i]])%in%c("startDay","endDay")], sep=':', collapse = '-'),
+                                                             "")
+          )
+          
+        }
+        covariates  <- rbind(covariates,covariatesTemp)
+      }
+    } else{
+      covariates <- data.frame(covariateName = 1, 
+                               Setting = names(covariateSettings), 
+                               Value = unlist(lapply(covariateSettings, 
+                                                            function(x) paste0(x, 
+                                                                               collapse='-'))))
+    }
+  }
+  row.names(covariates) <- NULL
+  return(covariates)
 }
