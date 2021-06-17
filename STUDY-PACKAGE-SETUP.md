@@ -38,16 +38,23 @@ install.packages("renv")
 # You need to specify a project folder for the renv (the study specific environment will be 
 # save here) and you need to set you R working direcory to this location before running renv
 projectFolder <- "C:/SkeletonPredictionStudy"
+if(!dir.exists(projectFolder)){
+dir.create(projectFolder,   recursive = T)
+}
 setwd(projectFolder)
-                                                                                                 
+                                                                                              
 # Download the lock file:
 download.file("https://raw.githubusercontent.com/ohdsi-studies/SkeletonPredictionStudy/master/renv.lock", "renv.lock")
 
-# Build the local library into projectFolder:
+# Build the local library into projectFolder (takes a while):
 renv::init()
 
-
 # (When not in RStudio, you'll need to restart R now)
+
+# finally install the SkeletonPredictionStudy package
+install.packages('devtools')
+devtools::install_github('ohdsi-studies/SkeletonPredictionStudy')
+
 library(SkeletonPredictionStudy)
 ````                                                                                                 
 # -------------------------------------------------------------
