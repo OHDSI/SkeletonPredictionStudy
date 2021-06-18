@@ -50,6 +50,9 @@ addExecutionSettings <- function(covariateSettings,
   if('scaleMap' %in% names(covariateSettings$settings)){
     covariateSettings$settings$scaleMap <- eval(str2lang(paste0(covariateSettings$settings$scaleMap, collapse = ' ')))
   }
+  if('ageMap' %in% names(covariateSettings$settings)){
+    covariateSettings$settings$ageMap <- eval(str2lang(paste0(covariateSettings$settings$ageMap, collapse = ' ')))
+  }
   
   
   res <- do.call(covariateSettings$fnct, covariateSettings$settings)
