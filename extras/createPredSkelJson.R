@@ -1,11 +1,70 @@
+createDevelopmentStudyPackage <- function(packageName = 'exampleStudy',
+                                          packageDescription = 'an example of the skeleton',
+                                          createdBy = 'add name',
+                                          organizationName = 'add organization',
+                                          targetIds = c(1,2,3),
+                                          outcomeIds = c(4,5),
+                                          populationSettings = list(),
+                                          modelList = list(),
+                                          covariateSettings = list(),
+                                          resrictOutcomePops =NULL,
+                                          resrictModelCovs = NULL,
+                                          resrictTargetCovs = NULL,
+                                          executionSettings = list(),
+                                          baseUrl = 'https://...',
+                                          outputFolder = getwd(),
+                                          useHydra = F,
+                                          skeletonVersion = "v0.0.5"){
+  
+  # check inputs
+  
+  jsonList <- createDevelopmentStudyJson(packageName = packageName,
+                                         packageDescription = packageDescription,
+                                         createdBy = createdBy,
+                                         organizationName = organizationName,
+                                         targetIds = targetIds,
+                                         outcomeIds = outcomeIds,
+                                         populationSettings = populationSettings,
+                                         modelList = modelList,
+                                         covariateSettings = covariateSettings,
+                                         resrictOutcomePops = resrictOutcomePops,
+                                         resrictModelCovs = resrictModelCovs,
+                                         resrictTargetCovs = resrictTargetCovs,
+                                         executionSettings = executionSettings,
+                                         baseUrl = baseUrl)
+  
+  if(useHydra){
+    jsonList$skeletonVersion <- skeletonVersion
+    json <- RJSONIO::toJSON(jsonList, digits = 23)
+    Hydra::hydrate(json, outputFolder = outputFolder)
+  } else{
+    
+    packageLocation <- downLoadSkeleton(outputFolder = outputFolder,
+                                        packageName = packageName,
+                                        skeletonType = 'SkeletonPredictionStudy')
+    
+    replaceName(packageLocation = packageLocation,
+                packageName = packageName,
+                skeletonType = 'SkeletonPredictionStudy')
+    
+    saveAnalysisJson(packageLocation = packageLocation,
+                     analysisList = jsonList)
+    
+    saveCohorts(packageLocation = packageLocation,
+                analysisList = jsonList,
+                baseUrl = baseUrl)
+  }
+  
+  return(invisible(NULL))
+}
+
+
 createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
                                        packageDescription = 'an example of the skeleton',
                                        createdBy = 'add name',
                                        organizationName = 'add organization',
-                                       targets = data.frame(targetId = c(1,2,3),
-                                                            targetName = c('Example 1','Example 2','Example 3')),
-                                       outcomes = data.frame(outcomeId = c(4,5),
-                                                             outcomeName = c('Example 4','Example 5')),
+                                       targetIds = c(1,2,3),
+                                       outcomeIds = c(4,5),
                                        populationSettings = list(),
                                        modelList = list(),
                                        covariateSettings = list(),
@@ -13,36 +72,41 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
                                        resrictModelCovs = NULL,
                                        resrictTargetCovs = NULL,
                                        executionSettings = list(),
-                                       webApi = 'https://...',
-                                       outputLocation = './',
-                                       jsonName = 'predictionAnalysisList.json'){
+                                       baseUrl = 'https://...'#,
+                                       #outputLocation = './',
+                                       #jsonName = 'predictionAnalysisList.json'
+                                       ){
   
-  json <- list()
+  result <- list()
   
-  json$skeletonType <-  "PatientLevelPredictionStudy"
-  json$skeletonVersion <- "v0.0.5"  #update?
-  json$packageName <- packageName
-  json$description <- packageDescription
+  result$skeletonType <-  "PatientLevelPredictionStudy"
+  result$packageName <- packageName
+  result$description <- packageDescription
   
-  json$createdBy <- createdBy
-  json$organizationName <-  organizationName
-  json$createdDate <- Sys.Date()
+  result$createdBy <- createdBy
+  result$organizationName <-  organizationName
+  result$createdDate <- Sys.Date()
   
-  json$runPlpArgs <- executionSettings
-  json$getPlpDataArgs<- list(washoutPeriod = 0)
-  json$targetIds <- unique(targets$targetId)
-  json$targetNames <- unique(targets$targetName)
-  json$outcomeIds <- unique(outcomes$outcomeId)
-  json$outcomeNames <- unique(outcomes$outcomeName)
+  result$runPlpArgs <- executionSettings
+  result$getPlpDataArgs<- list(washoutPeriod = 0)
+  result$targetIds <- unique(targetIds)
+  result$outcomeIds <- unique(outcomeIds)
   
-  cohortsToCreate <- getCohortDetails(targets, outcomes, covariateSettings)
-  json$cohortDefinitions  <- getCohorts(cohortsToCreate,
-                                        baseUrl = webApi)
+  #cohortsToCreate <- getCohortDetails(targets, outcomes, covariateSettings)
+  #json$cohortDefinitions  <- getCohorts(cohortsToCreate,
+  #                                      baseUrl = webApi)
+  #
   
+  # cohort definitions
+  ##cohortIds <- unique(unlist(lapply(covariateSettings, function(x) x$settings$cohortId)))
+  cohortIds <- unique(unlist(lapply(1:length(covariateSettings), function(i) {lapply(covariateSettings[[i]], function(x) x$settings$cohortId)})))
+  cohortDefinitionList <- getCohorts(unique(c(targetIds, outcomeIds, cohortIds)), 
+                                     baseUrl = baseUrl)
+  result$cohortDefinitions <- cohortDefinitionList
   
   # restrict settings
-  json$settings <- createSettings(targets, 
-                                  outcomes, 
+  result$settings <- createSettings(targetIds, 
+                                  outcomeIds, 
                                   populationSettings, 
                                   resrictOutcomePops,
                                   modelList, 
@@ -52,24 +116,24 @@ createDevelopmentStudyJson <- function(packageName = 'exampleStudy',
   
   
   # add the settings
-  json$populationSettings <- populationSettings
+  result$populationSettings <- populationSettings
   
-  json$modelSettings <- modelList
+  result$modelSettings <- modelList
   
-  json$covariateSettings <- addAttr(covariateSettings)
+  result$covariateSettings <- addAttr(covariateSettings)
   
-  if(!dir.exists(outputLocation)){
-    dir.create(outputLocation, recursive = T)
-  }
+  #if(!dir.exists(outputLocation)){
+  #  dir.create(outputLocation, recursive = T)
+  #}
   
   #json <- RJSONIO::toJSON(json)
   #ParallelLogger::saveSettingsToJson(json,
   #                                   file.path(outputLocation, jsonName))
   
-  exportJson <- RJSONIO::toJSON(json, digits = 23)
-  write(exportJson, file=file.path(outputLocation, jsonName))
+  #exportJson <- RJSONIO::toJSON(json, digits = 23)
+  #write(exportJson, file=file.path(outputLocation, jsonName))
   
-  return(json)
+  return(result)
 }
 
 
@@ -106,77 +170,20 @@ addAttr <- function(covariateSettings){
   
 }
 
-
-getCohortId <- function(x){
-  if('cohortId' %in% names(x)){
-    return(data.frame(name = ifelse(!is.null(x$covariateName), x$covariateName, paste0('covariate_',x$cohortId)),
-                      cohortId = x$cohortId)
-    )
-  }
-  return(NULL)
-}
-
-# returns cohortIds in the covariate settings or NULL if there are none
-findCohorts <- function(singleCovariateList){
-  if(!is.null(singleCovariateList$fnct)){
-    singleCovariateList <- list(singleCovariateList)
-  }
-  result <- do.call(rbind,lapply(singleCovariateList, function(x){getCohortId(x$settings)}))
-  return(result)
-}
-
-# extracts cohort covariates and create data.frame of ts, os, and covariate cohorts (ids and names)
-getCohortDetails <- function(targets, outcomes, covariateSettings){
-  
-  # create data.frame with columns: name, atlasId, cohortId, type
-  targetDetails <- data.frame(name = targets$targetName,
-                              atlasId = targets$targetId,
-                              cohortId = targets$cohortId,
-                              type = 'target')
-  
-  outcomeDetails <- data.frame(name = outcomes$outcomeName,
-                               atlasId = outcomes$outcomeId,
-                               cohortId = outcomes$outcomeId,
-                               type = 'outcome')
-  
-  covariateDetails <- unique(do.call(rbind,lapply(covariateSettings, findCohorts)))
-  if(!is.null(covariateDetails)){
-    covariateDetails <- data.frame(name = covariateDetails$name,
-                                   atlasId = covariateDetails$cohortId,
-                                   cohortId = covariateDetails$cohortId,
-                                   type = 'covariate')
-    cohortDetails <- rbind(targetDetails,
-                           outcomeDetails,
-                           covariateDetails)
-  } else{
-    cohortDetails <- rbind(targetDetails,
-                           outcomeDetails)
-  }
-  
-  return(cohortDetails)
-}
-
 # extracts the jsons for cohort each id
-getCohorts <- function(cohortsToCreate, baseUrl){
-  
-  cohortDefinitions <- list()
-  length(cohortDefinitions) <- nrow(cohortsToCreate)
-  
-  for (i in 1:nrow(cohortsToCreate)) {
-    writeLines(paste("Extracting cohort:", cohortsToCreate$name[i]))
-    cohortDefinitions[[i]] <- ROhdsiWebApi::getCohortDefinition(cohortId = cohortsToCreate$atlasId[i], 
-                                                                baseUrl = baseUrl)
-    cohortDefinitions[[i]]$expressionSql <- RJSONIO::toJSON(cohortDefinitions[[i]]$expression)
-    cohortDefinitions[[i]]$name = cohortsToCreate$name[i]
+getCohorts <- function(cohortIds,
+                       baseUrl){
+  cohorts <- list()
+  length(cohorts) <- length(cohortIds)
+  for(i in 1:length(cohortIds)){
+    cohorts[[i]] <- ROhdsiWebApi::getCohortDefinition(cohortId = cohortIds[[i]], baseUrl = baseUrl)
   }
-  
-  return(cohortDefinitions)
-  
+  return(cohorts)
 }
 
 # create the settings data.frame 
-createSettings <- function(targets, 
-                           outcomes, 
+createSettings <- function(targetIds, 
+                           outcomeIds, 
                            populationSettings, 
                            resrictOutcomePops = NULL,
                            modelList, 
@@ -185,12 +192,12 @@ createSettings <- function(targets,
                            resrictTargetCovs= NULL){
   
   #cartesian product of tId, oId, modelId, covId, popId
-  settings <- split(expand.grid(cohortId = targets$targetId,
-                                outcomeId = outcomes$outcomeId,
+  settings <- split(expand.grid(cohortId = targetIds,
+                                outcomeId = outcomeIds,
                                 populationSettingId = 1:length(populationSettings),
                                 modelSettingId = 1:length(modelList),
                                 covariateSettingId = 1:length(covariateSettings)), 
-                    1:(length(targets$targetId) * length(outcomes$outcomeId)* length(populationSettings)* length(modelList)* length(covariateSettings)))
+                    1:(length(targetIds) * length(outcomeIds)* length(populationSettings)* length(modelList)* length(covariateSettings)))
   settings <- do.call(rbind, settings)
   
   # restrict to resrictOutcomePops if not null
@@ -213,27 +220,44 @@ createSettings <- function(targets,
   return(settings)
 }
 
+#=====================
+# create package functions
+#=====================
 
-replaceName <- function(packageLocation = getwd(), 
-                        packageName = 'ValidateRCRI'){
+# code to use skeleton master from github rather than hydra
+# download a .zip file of the repository
+# from the "Clone or download - Download ZIP" button
+# on the GitHub repository of interest
+downLoadSkeleton <- function(outputFolder,
+                             packageName,
+                             skeletonType = 'SkeletonPredictionStudy'){
+  # check outputFolder exists
   
-  # rename files:
-  #=====
-  # file.path(packageLocation,"SkeletonExistingPredictionModelStudy.Rproj")
-  # file.path(packageLocation,"R/SkeletonExistingPredictionModelStudy.R")
-  filesToRename <- c("SkeletonExistingPredictionModelStudy.Rproj","R/SkeletonExistingPredictionModelStudy.R")
+  # check file.path(outputFolder,  packageName) does not exist
+  
+  # download, unzip and rename:
+  
+  download.file(url = paste0("https://github.com/ohdsi/",skeletonType,"/archive/master.zip")
+                , destfile = file.path(outputFolder, "package.zip"))
+  # unzip the .zip file
+  unzip(zipfile = file.path(outputFolder, "package.zip"), exdir = outputFolder)
+  file.rename( from = file.path(outputFolder, paste0(skeletonType, '-master')),
+               to = file.path(outputFolder,  packageName))
+  unlink(file.path(outputFolder, "package.zip"))
+  return(file.path(outputFolder, packageName))
+}
+
+# change name
+replaceName <- function(packageLocation = getwd(),
+                        packageName = 'ValidateRCRI',
+                        skeletonType = 'SkeletonPredictionValidationStudy'){
+  
+  filesToRename <- c(paste0(skeletonType,".Rproj"),paste0("R/",skeletonType,".R"))
   for(f in filesToRename){
     ParallelLogger::logInfo(paste0('Renaming ', f))
-    fnew <- gsub("SkeletonExistingPredictionModelStudy", packageName, f)
+    fnew <- gsub(skeletonType, packageName, f)
     file.rename(from = file.path(packageLocation,f), to = file.path(packageLocation,fnew))
   }
-  
-  # edit test in files:
-  #=====
-  # file.path(packageLocation,"DESCRIPTION")
-  # file.path(packageLocation,"README.md")
-  # file.path(packageLocation,"extras/CodeToRun.R")
-  # each file in dir(file.path(packageLocation,"R"))
   
   filesToEdit <- c(file.path(packageLocation,"DESCRIPTION"),
                    file.path(packageLocation,"README.md"),
@@ -242,8 +266,227 @@ replaceName <- function(packageLocation = getwd(),
   for( f in filesToEdit ){
     ParallelLogger::logInfo(paste0('Editing ', f))
     x <- readLines(f)
-    y <- gsub( "SkeletonExistingPredictionModelStudy", packageName, x )
+    y <- gsub( skeletonType, packageName, x )
     cat(y, file=f, sep="\n")
     
   }
+  
+  return(packageName)
 }
+
+# save json file into isnt/settings/predictionAnalysisList.json
+saveAnalysisJson <- function(packageLocation,
+                             analysisList){
+  write(RJSONIO::toJSON(analysisList, digits =23),
+        file=file.path(packageLocation, 'inst', 'settings', 'predictionAnalysisList.json')
+  )
+  
+  return(packageLocation)
+}
+
+# create cohorts to create from cohortDefinitions
+# save json and convert+save sql into inst/cohorts and inst/sql/sql_server
+saveCohorts <- function(packageLocation,
+                        analysisList,
+                        baseUrl){
+  
+  nameForFile <- function(name){
+    writeLines(name)
+    name <- gsub(' ','_', name)
+    name <- gsub("[[:punct:]]", "_", name)
+    writeLines(name)
+    return(name)
+  }
+  
+  details <- lapply(1:length(analysisList$cohortDefinitions), function(i){c(name = analysisList$cohortDefinitions[[i]]$name,
+                                                                            cohortId = analysisList$cohortDefinitions[[i]]$id,
+                                                                            atlasId = analysisList$cohortDefinitions[[i]]$id)})
+  details <- do.call('rbind', details)
+  details <- as.data.frame(details, stringsAsFactors = F)
+  details$name <- nameForFile(details$name) # failing dev
+  
+  write.csv(x = details,
+            file = file.path(packageLocation, 'inst', 'settings','cohortsToCreate.csv'),
+            row.names = F)
+  
+  # make sure cohorts and sql/sql_server exist
+  if(!dir.exists(file.path(packageLocation, 'inst', 'cohorts'))){
+    dir.create(file.path(packageLocation, 'inst', 'cohorts'), recursive = T)
+  }
+  if(!dir.exists(file.path(packageLocation, 'inst', 'sql', 'sql_server'))){
+    dir.create(file.path(packageLocation, 'inst', 'sql', 'sql_server'), recursive = T)
+  }
+  
+  # save the cohorts as json
+  lapply(1:length(analysisList$cohortDefinitions), function(i){
+    write(RJSONIO::toJSON(analysisList$cohortDefinitions[[i]], digits = 23),
+          file=file.path(packageLocation, 'inst', 'cohorts', paste0(nameForFile(analysisList$cohortDefinitions[[i]]$name),'.json')))
+  })
+  
+  # save the cohorts as sql
+  lapply(1:length(analysisList$cohortDefinitions), function(i){
+    write(ROhdsiWebApi::getCohortSql(analysisList$cohortDefinitions[[i]], baseUrl = baseUrl),
+          file=file.path(packageLocation, 'inst', 'sql', 'sql_server', paste0(nameForFile(analysisList$cohortDefinitions[[i]]$name), '.sql')))
+  })
+  
+  return(packageLocation)
+}
+
+#===================
+# covariateSettings
+#===================
+createCohortCovariateSetting <- function(atlasId = 1,
+                                         covariateName = '',
+                                         startDay=-30,
+                                         endDay=0,
+                                         count=F,
+                                         ageInteraction = F,
+                                         lnAgeInteraction= F,
+                                         analysisId = 456,
+                                         points,
+                                         offset = 0,
+                                         power = 1){
+  
+  if(base::missing(points)){
+    settings <- list(fnct = 'createCohortCovariateSettings',
+                     settings = list(covariateName = covariateName,
+                                     covariateId = atlasId*1000+analysisId,
+                                     cohortId = atlasId,
+                                     startDay = startDay,
+                                     endDay = endDay,
+                                     count = count,
+                                     ageInteraction = ageInteraction,
+                                     lnAgeInteraction = lnAgeInteraction,
+                                     analysisId = analysisId))
+  }else{
+    settings <- list(fnct = 'createCohortCovariateSettings',
+                     settings = list(covariateName = covariateName,
+                                     covariateId = atlasId*1000+analysisId,
+                                     cohortId = atlasId,
+                                     startDay = startDay,
+                                     endDay = endDay,
+                                     count = count,
+                                     ageInteraction = ageInteraction,
+                                     lnAgeInteraction = lnAgeInteraction,
+                                     analysisId = analysisId),
+                     coeffs  = list(covariateId = atlasId*1000+analysisId,
+                                    points = points,
+                                    offset = offset,
+                                    power = power ))
+  }
+  
+  return(settings)
+}
+
+
+createGenderCovariateSetting <- function(male = T,
+                                         points,
+                                         offset,
+                                         power){
+  
+  if(base::missing(points)){
+    settings <- list(fnct = 'createCovariateSettings',
+                     settings = FeatureExtraction::createCovariateSettings(useDemographicsGender = T,
+                                                                           includedCovariateIds = ifelse(male, 8507, 8532)*1000+1))
+  }else{
+    settings <- list(fnct = 'createCovariateSettings',
+                     settings = FeatureExtraction::createCovariateSettings(useDemographicsGender = T,
+                                                                           includedCovariateIds = ifelse(male, 8507, 8532)*1000+1),
+                     coeffs  = list(covariateId = ifelse(male, 8507, 8532)*1000+1,
+                                    points = points,
+                                    offset = offset,
+                                    power = power ))
+  }
+  
+  return(settings)
+}
+
+createAgeCovariateSetting <- function(covariateName = 'Age at index',
+                                      ageMap = function(x){return(x)},
+                                      covariateId = 1458,
+                                      analysisId = 458,
+                                      points,
+                                      offset = 0,
+                                      power = 1){
+  
+  if(base::missing(points)){
+    settings <- list(fnct = 'createAgeCovariateSettings',
+                     settings = list(covariateName = covariateName,
+                                     ageMap = ageMap,
+                                     covariateId = covariateId,
+                                     analysisId = analysisId))
+  }else{
+    settings <- list(fnct = 'createAgeCovariateSettings',
+                     settings = list(covariateName = covariateName,
+                                     ageMap = ageMap,
+                                     covariateId = covariateId,
+                                     analysisId = analysisId),
+                     coeffs  = list(covariateId = covariateId,
+                                    points = points,
+                                    offset = offset,
+                                    power = power ))
+  }
+  
+  return(settings)
+}
+
+createMeasurementCovariateSetting <- function(covariateName,
+                                              conceptSet,
+                                              startDay=-30,
+                                              endDay=0,
+                                              scaleMap = NULL,
+                                              aggregateMethod = 'recent',
+                                              imputationValue = 0,
+                                              ageInteraction = F,
+                                              lnAgeInteraction = F,
+                                              lnValue = F,
+                                              covariateId = 1466,
+                                              analysisId = 466,
+                                              points,
+                                              offset = 0,
+                                              power = 1){
+  
+  if(base::missing(points)){
+    settings <- list(fnct = 'createMeasurementCovariateSettings',
+                     settings = list(covariateName = covariateName,
+                                     conceptSet = conceptSet,
+                                     startDay=startDay,
+                                     endDay=endDay,
+                                     scaleMap = scaleMap,
+                                     aggregateMethod = aggregateMethod,
+                                     imputationValue = imputationValue,
+                                     ageInteraction = ageInteraction,
+                                     lnAgeInteraction = lnAgeInteraction,
+                                     lnValue = lnValue,
+                                     covariateId = covariateId,
+                                     analysisId = analysisId))
+  } else{
+    settings <- list(fnct = 'createMeasurementCovariateSettings',
+                     settings = list(covariateName = covariateName,
+                                     conceptSet = conceptSet,
+                                     startDay=startDay,
+                                     endDay=endDay,
+                                     scaleMap = scaleMap,
+                                     aggregateMethod = aggregateMethod,
+                                     imputationValue = imputationValue,
+                                     ageInteraction = ageInteraction,
+                                     lnAgeInteraction = lnAgeInteraction,
+                                     lnValue = lnValue,
+                                     covariateId = covariateId,
+                                     analysisId = analysisId),
+                     coeffs  = list(covariateId = covariateId,
+                                    points = points,
+                                    offset = offset,
+                                    power = power ))
+  }
+ 
+  
+  return(settings)
+}
+
+createStandardCovariateSetting <- function(settings = FeatureExtraction::createCovariateSettings()){
+  settings <- list(fnct = 'createCovariateSettings',
+                   settings = settings)
+  return(settings)
+}
+
