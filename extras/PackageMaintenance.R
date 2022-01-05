@@ -41,19 +41,6 @@ rmarkdown::render("vignettes/CreatingStudyPackageInR.Rmd",
                                           toc = TRUE,
                                           number_sections = TRUE))
 
-# Create analysis details -------------------------------------------------
-# Insert cohort definitions from ATLAS into package -----------------------
-OhdsiRTools::insertCohortDefinitionSetInPackage(fileName = "CohortsToCreate.csv",
-                                                baseUrl = "webapi",
-                                                insertTableSql = TRUE,
-                                                insertCohortCreationR = TRUE,
-                                                generateStats = FALSE,
-                                                packageName = "SkeletonPredictionStudy")
-
-# Create analysis details -------------------------------------------------
-source("extras/CreatePredictionAnalysisDetails.R")
-createAnalysesDetails("inst/settings")
-
 # Store environment in which the study was executed -----------------------
 OhdsiRTools::insertEnvironmentSnapshotInPackage("SkeletonPredictionStudy")
 

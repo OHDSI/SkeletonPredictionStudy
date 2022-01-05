@@ -14,75 +14,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-.createCohorts <- function(connection,
-                           cdmDatabaseSchema,
-                           vocabularyDatabaseSchema = cdmDatabaseSchema,
-                           cohortDatabaseSchema,
-                           cohortTable,
-                           oracleTempSchema,
-                           outputFolder,
-                           cohortVariableSetting = NULL) {
+.createCohorts <- function(
+  connection,
+  cdmDatabaseSchema,
+  vocabularyDatabaseSchema = cdmDatabaseSchema,
+  cohortDatabaseSchema,
+  cohortTable,
+  tempEmulationSchema,
+  outputFolder
+) {
   
   # Create study cohort table structure:
-  sql <- SqlRender::loadRenderTranslateSql(sqlFilename = "CreateCohortTable.sql",
-                                           packageName = "SkeletonPredictionStudy",
-                                           dbms = attr(connection, "dbms"),
-                                           oracleTempSchema = oracleTempSchema,
-                                           cohort_database_schema = cohortDatabaseSchema,
-                                           cohort_table = cohortTable)
+  sql <- SqlRender::loadRenderTranslateSql(
+    sqlFilename = "CreateCohortTable.sql",
+    packageName = "SkeletonPredictionStudy",
+    dbms = attr(connection, "dbms"),
+    tempEmulationSchema = tempEmulationSchema,
+    cohort_database_schema = cohortDatabaseSchema,
+    cohort_table = cohortTable
+  )
   DatabaseConnector::executeSql(connection, sql, progressBar = FALSE, reportOverallTime = FALSE)
   
-  
-  
+
   # Instantiate cohorts:
   pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "SkeletonPredictionStudy")
   cohortsToCreate <- utils::read.csv(pathToCsv)
   for (i in 1:nrow(cohortsToCreate)) {
     writeLines(paste("Creating cohort:", cohortsToCreate$name[i]))
-    sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortsToCreate$name[i], ".sql"),
-                                             packageName = "SkeletonPredictionStudy",
-                                             dbms = attr(connection, "dbms"),
-                                             oracleTempSchema = oracleTempSchema,
-                                             cdm_database_schema = cdmDatabaseSchema,
-                                             vocabulary_database_schema = vocabularyDatabaseSchema,
-                                             
-                                             target_database_schema = cohortDatabaseSchema,
-                                             target_cohort_table = cohortTable,
-                                             target_cohort_id = cohortsToCreate$cohortId[i])
+    sql <- SqlRender::loadRenderTranslateSql(
+      sqlFilename = paste0(cohortsToCreate$name[i], ".sql"),
+      packageName = "SkeletonPredictionStudy",
+      dbms = attr(connection, "dbms"),
+      tempEmulationSchema = tempEmulationSchema,
+      cdm_database_schema = cdmDatabaseSchema,
+      vocabulary_database_schema = vocabularyDatabaseSchema,
+      
+      target_database_schema = cohortDatabaseSchema,
+      target_cohort_table = cohortTable,
+      target_cohort_id = cohortsToCreate$cohortId[i]
+    )
     DatabaseConnector::executeSql(connection, sql)
   }
-  
-  if(!is.null(cohortVariableSetting)){
-    # if custom cohort covaraites set:
-    pathToCustom <- system.file("settings", cohortVariableSetting, package = "SkeletonPredictionStudy")
-    if(!file.exists(pathToCustom)){
-      stop('cohortVariableSetting does not exist in package')
-    }
-    cohortVarsToCreate <- utils::read.csv(pathToCustom)
-    
-    if(sum(colnames(cohortVarsToCreate)%in%c('atlasId', 'cohortName', 'startDay', 'endDay'))!=4){
-      stop('Issue with cohortVariableSetting - make sure it is NULL or a setting')  
-    }
-    
-    cohortVarsToCreate <- unique(cohortVarsToCreate[,c('atlasId', 'cohortName')])
-    for (i in 1:nrow(cohortVarsToCreate)) {
-      writeLines(paste("Creating cohort:", cohortVarsToCreate$cohortName[i]))
-      sql <- SqlRender::loadRenderTranslateSql(sqlFilename = paste0(cohortVarsToCreate$cohortName[i], ".sql"),
-                                               packageName = "SkeletonPredictionStudy",
-                                               dbms = attr(connection, "dbms"),
-                                               oracleTempSchema = oracleTempSchema,
-                                               cdm_database_schema = cdmDatabaseSchema,
-                                               vocabulary_database_schema = vocabularyDatabaseSchema,
-                                               
-                                               target_database_schema = cohortDatabaseSchema,
-                                               target_cohort_table = cohortTable,
-                                               target_cohort_id = cohortVarsToCreate$atlasId[i])
-      DatabaseConnector::executeSql(connection, sql)
-    }
-  
-  
-  }
-  
   
   
 }
