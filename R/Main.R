@@ -262,6 +262,7 @@ execute <- function(databaseDetails,
         modelDesignList = predictionAnalysisList$analyses,
         onlyFetchData = onlyFetchData,
         splitSettings = predictionAnalysisList$splitSettings,
+        cohortDefinitions = predictionAnalysisList$cohortDefinitions,
         logSettings = logSettings,
         saveDirectory = outputFolder
         )
