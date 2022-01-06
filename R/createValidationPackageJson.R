@@ -342,9 +342,13 @@ combineCohortDefinitions <- function(modelsJson){
     
     # combine into single list
     cohortDefinitionsAll <- cohortDefinitions[[1]]
-    for(i in 2:length(cohortDefinitions)){
-      cohortDefinitionsAll <- append(cohortDefinitionsAll, cohortDefinitions[[i]])
+    
+    if(length(cohortDefinitions)>1){
+      for(i in 2:length(cohortDefinitions)){
+        cohortDefinitionsAll <- append(cohortDefinitionsAll, cohortDefinitions[[i]])
+      }
     }
+    
     cohortDefinitions <- unique(cohortDefinitionsAll)
     
     # check for duplicate ids
