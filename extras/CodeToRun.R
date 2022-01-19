@@ -78,7 +78,7 @@ createShiny <- FALSE
 
 #=======================
 
-execute(
+SkeletonPredictionStudy::execute(
         databaseDetails = databaseDetails,
         outputFolder = outputFolder,
         createProtocol = createProtocol,
@@ -90,7 +90,6 @@ execute(
         analysesToValidate = analysesToValidate,
         packageResults = packageResults,
         minCellCount= minCellCount,
-        createShiny = createShiny,
         logSettings = logSettings,
         sampleSize = sampleSize
 )

@@ -13,11 +13,12 @@ execute(
   viewDiagnostic = F,
   runAnalyses = F,
   createValidationPackage = F,
+  useHydra = F,
   skeletonVersion = "v0.0.1",
   analysesToValidate = NULL,
   packageResults = F,
   minCellCount = 5,
-  createShiny = F,
+  viewShiny = F,
   onlyFetchData = F,
   sampleSize = NULL,
   logSettings
@@ -43,6 +44,8 @@ settings or whether the prediction may not do well.}
 
 \item{createValidationPackage}{Create a package for sharing the models}
 
+\item{useHydra}{Whether to use Hydra to create the validation package (requires hydra to be installed) or download the master version of the skeleton (requires internet access)}
+
 \item{skeletonVersion}{The version of the validation skeleton to use}
 
 \item{analysesToValidate}{A vector of analysis ids (e.g., c(1,3,10)) specifying which analysese to export into validation package. Default is NULL and all are exported.}
@@ -52,7 +55,7 @@ settings or whether the prediction may not do well.}
 \item{minCellCount}{The minimum number of subjects contributing to a count before it can be included 
 in packaged results.}
 
-\item{createShiny}{Create a shiny app with the results}
+\item{viewShiny}{View a shiny app with the results}
 
 \item{onlyFetchData}{Only fetch data for the analyses without fitting models. Setting this flag will overwrite your input provided to the runAnalyses and createCohorts parameters.}
 
@@ -99,10 +102,11 @@ execute(databaseDetails = databaseDetails,
         viewDiagnostic = F,
         runAnalyses = T,
         createValidationPackage = T,
+        useHydra = F,
         skeletonVersion = 'v1.0.1',
         packageResults = F,
         minCellCount = 5,
-        createShiny = F,
+        viewShiny = F,
         sampleSize = 10000,
         logSettings = logSettings
         )

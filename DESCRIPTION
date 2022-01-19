@@ -1,7 +1,7 @@
 Package: SkeletonPredictionStudy
 Type: Package
 Title: A Skeleton for Prediction Development Studies that use the PatientLevelPrediction Framework
-Version: 0.0.8
+Version: 1.0.0
 Author: Jenna Reps [aut, cre]
 Maintainer: Jenna M Reps <reps@ohdsi.org>
 Description: A skeleton package to be used as a starting point when implementing patient-level prediction development studies.
@@ -10,15 +10,11 @@ Depends:
 Imports:
     DatabaseConnector,
     FeatureExtraction,
-    grDevices,
-    Hydra,
     jsonlite,
     magrittr,
     OhdsiSharing,
-    PatientLevelPrediction (>= 4.3.7),
+    PatientLevelPrediction (>= 5.0.0),
     ParallelLogger,
-    reshape2,
-    RJSONIO,
     SqlRender,
     utils
 Suggests:
@@ -28,11 +24,13 @@ Suggests:
     ggplot2,
     gridExtra,
     htmltools,
+    Hydra,
     knitr,
     officer,
     plotly,
     rmarkdown,
     R.utils,
+    reshape2,
     shiny,
     shinycssloaders,
     shinydashboard,

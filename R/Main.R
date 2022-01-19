@@ -30,12 +30,13 @@
 #' @param viewDiagnostic       Opens a shiny app with the diagnostic results (run after runDiagnostic completes)                              
 #' @param runAnalyses          Run the model development
 #' @param createValidationPackage  Create a package for sharing the models 
+#' @param useHydra             Whether to use Hydra to create the validation package (requires hydra to be installed) or download the master version of the skeleton (requires internet access)
 #' @param skeletonVersion      The version of the validation skeleton to use
 #' @param analysesToValidate   A vector of analysis ids (e.g., c(1,3,10)) specifying which analysese to export into validation package. Default is NULL and all are exported.
 #' @param packageResults       Should results be packaged for later sharing?     
 #' @param minCellCount         The minimum number of subjects contributing to a count before it can be included 
 #'                             in packaged results.
-#' @param createShiny          Create a shiny app with the results
+#' @param viewShiny            View a shiny app with the results
 #' @param onlyFetchData        Only fetch data for the analyses without fitting models. Setting this flag will overwrite your input provided to the runAnalyses and createCohorts parameters.
 #' @param sampleSize           The number of patients in the target cohort to sample (if NULL uses all patients)
 #' @param logSettings           The log setting \code{PatientLevelPrediction::createLogSettings()}                            
@@ -73,33 +74,36 @@
 #'         viewDiagnostic = F,
 #'         runAnalyses = T,
 #'         createValidationPackage = T,
+#'         useHydra = F,
 #'         skeletonVersion = 'v1.0.1',
 #'         packageResults = F,
 #'         minCellCount = 5,
-#'         createShiny = F,
+#'         viewShiny = F,
 #'         sampleSize = 10000,
 #'         logSettings = logSettings
 #'         )
 #' }
 #'
 #' @export
-execute <- function(databaseDetails,
-                    outputFolder,
-                    createProtocol = F,
-                    createCohorts = F,
-                    runDiagnostic = F,
-                    viewDiagnostic = F,
-                    runAnalyses = F,
-                    createValidationPackage = F,
-                    skeletonVersion = 'v0.0.1',
-                    analysesToValidate = NULL,
-                    packageResults = F,
-                    minCellCount= 5,
-                    createShiny = F,
-                    onlyFetchData = F,
-                    sampleSize = NULL,
-                    logSettings
-  ) {
+execute <- function(
+  databaseDetails,
+  outputFolder,
+  createProtocol = F,
+  createCohorts = F,
+  runDiagnostic = F,
+  viewDiagnostic = F,
+  runAnalyses = F,
+  createValidationPackage = F,
+  useHydra = F,
+  skeletonVersion = 'v0.0.1',
+  analysesToValidate = NULL,
+  packageResults = F,
+  minCellCount= 5,
+  viewShiny = F,
+  onlyFetchData = F,
+  sampleSize = NULL,
+  logSettings
+) {
   
   if (!file.exists(outputFolder))
     dir.create(outputFolder, recursive = TRUE)
@@ -108,7 +112,7 @@ execute <- function(databaseDetails,
   
   if(createProtocol){
     ensure_installed('officer')
-    createPlpProtocol(outputFolder)
+    createPlpProtocol(predictionAnalysisListFile = NULL, outputLocation = outputFolder)
   }
   
   if (createCohorts || onlyFetchData) {
@@ -253,7 +257,15 @@ execute <- function(databaseDetails,
   
     # add code to add database settings for covariates...
     #[TODO]
-    
+    for(i in 1:length(predictionAnalysisList$analyses)){
+      ParallelLogger::logInfo('Updating cohort covariate settings is being used')
+      predictionAnalysisList$analyses[[i]]$covariateSettings <- addCohortSettings(
+        covariateSettings = predictionAnalysisList$analyses[[i]]$covariateSettings, 
+        cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema, 
+        cohortTable = databaseDetails$cohortTable
+      )
+    }
+
     result <- do.call(
       PatientLevelPrediction::runMultiplePlp, 
       
@@ -277,44 +289,29 @@ execute <- function(databaseDetails,
   }
   
   if(createValidationPackage){
-    ensure_installed("Hydra")
-    if(!is_installed("Hydra", version = '0.0.8')){
-      warning('Hydra need to be updated to use custom cohort covariates')
-    }
 
-      ParallelLogger::logInfo('Creating validation using models saved to JSON files')
+      ParallelLogger::logInfo('Creating validation package')
       tryCatch({
         
-        createValidationPackageJson(devPackageName = 'SkeletonPredictionStudy',
-                                    devDatabaseName = cdmDatabaseName,
-                                    analysisLocation = outputFolder,
-                                    analysisIds = analysesToValidate,
-                                    outputFolder = outputFolder,
-                                    packageName = 'SkeletonPredictionStudyValidation',
-                                    description = 'validating models in SkeletonPredictionStudy',
-                                    skeletonVersion = skeletonVersion,
-                                    createdBy = 'anonymous',
-                                    organizationName = 'none')
-        
+        createValidationPackage(
+          devPackageName = 'SkeletonPredictionStudy',
+          devDatabaseName = cdmDatabaseName,
+          analysisLocation = outputFolder,
+          analysisIds = analysesToValidate,
+          outputFolder = outputFolder,
+          validationPackageName = 'SkeletonPredictionStudyValidation',
+          description = 'validating models in SkeletonPredictionStudy',
+          createdBy = 'anonymous',
+          organizationName = 'none',
+          useHydra = useHydra,
+          skeletonVersion = skeletonVersion
+        )
         
       }, error = function(e){ParallelLogger::logError(e)})
   }
   
-  if (createShiny) {
-    ensure_installed("plotly")
-    ensure_installed("ggplot2")
-    ensure_installed("reshape2")
-    ensure_installed("DT")
-    ensure_installed("htmltools")
-    ensure_installed("shinydashboard")
-    ensure_installed("shinyWidgets")
-    ensure_installed("shinycssloaders")
-    ensure_installed("shiny")
-    
-    populateShinyApp(outputDirectory = file.path(outputFolder, 'ShinyApp'),
-                     resultDirectory = outputFolder,
-                     minCellCount = minCellCount,
-                     databaseName = cdmDatabaseName)
+  if (viewShiny) {
+    PatientLevelPrediction::viewMultiplePlp(outputFolder)
   }
   
   invisible(NULL)
