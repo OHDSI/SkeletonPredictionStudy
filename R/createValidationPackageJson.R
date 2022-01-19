@@ -367,7 +367,7 @@ transportModelsToJson <- function(modelJson, packageLoc){
     function(i){
       PatientLevelPrediction::savePlpModel(
         plpModel = modelJson[[i]], 
-        saveDirectory = file.path(packageLoc, 'inst', 'models', modelJson[[i]]$trainDetails$analysisId)
+        dirPath = file.path(packageLoc, 'inst', 'models', modelJson[[i]]$trainDetails$analysisId)
       )
     }
   )
