@@ -115,7 +115,7 @@ execute <- function(
     createPlpProtocol(predictionAnalysisListFile = NULL, outputLocation = outputFolder)
   }
   
-  if (createCohorts || onlyFetchData) {
+  if (createCohorts) {
     ParallelLogger::logInfo("Creating cohorts")
     createCohorts(
       databaseDetails = databaseDetails,
@@ -123,11 +123,16 @@ execute <- function(
     )
   }
   
-  if(runDiagnostic){
-    ParallelLogger::logInfo(paste0("Creating diagnostic results for ",cdmDatabaseName))
+  if(runAnalyses || onlyFetchData || runDiagnostic){
+    if(onlyFetchData || (runDiagnostic && !runAnalyses)) {
+      ParallelLogger::logInfo("Only fetching data and not running predictions")
+    } else {
+      ParallelLogger::logInfo("Running predictions")
+    }
+    
     predictionAnalysisListFile <- system.file("settings",
-                                              "predictionAnalysisList.json",
-                                              package = "SkeletonPredictionStudy")
+      "predictionAnalysisList.json",
+      package = "SkeletonPredictionStudy")
     
     predictionAnalysisList <- tryCatch(
       {PatientLevelPrediction::loadPlpAnalysesJson(file.path(predictionAnalysisListFile))},
@@ -135,7 +140,7 @@ execute <- function(
         ParallelLogger::logInfo('Issue when loading json file...');
         ParallelLogger::logError(cond)
       })
-
+    
     # add sample settings
     if(!is.null(sampleSize)){
       ParallelLogger::logInfo('Adding sample settings')
@@ -144,61 +149,81 @@ execute <- function(
       }
     }
     
-    cohortIds <- lapply(predictionAnalysisList$analyses, function(x) x$targetId)
-    outcomeIds <- lapply(predictionAnalysisList$analyses, function(x) x$outcomeId)
-    
-    outcomeId <- list()
-    length(outcomeId) <- length(unique(cohortIds))
-    for(cohortId in unique(cohortIds)){
-      outcomeId[[i]] <- outcomeIds[cohortIds == cohortId]
+    # add code to add database settings for covariates...
+    #[TODO]
+    for(i in 1:length(predictionAnalysisList$analyses)){
+      ParallelLogger::logInfo('Updating cohort covariate settings is being used')
+      predictionAnalysisList$analyses[[i]]$covariateSettings <- addCohortSettings(
+        covariateSettings = predictionAnalysisList$analyses[[i]]$covariateSettings, 
+        cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema, 
+        cohortTable = databaseDetails$cohortTable
+      )
     }
     
-    # run diagnostic
-    for(i in 1:length(unique(cohortIds))){
+    result <- do.call(
+      PatientLevelPrediction::runMultiplePlp, 
       
-      cohortId <- unique(cohortIds)[i]
-      outcomeIds <- outcomeId[[i]]
-      
-      cohortName <- getNames(
-        cohortDefinitions = predictionAnalysisList$cohortDefinitions, 
-        ids = cohortId
-        )
-      
-      outcomeNames <- getNames(
-        cohortDefinitions = predictionAnalysisList$cohortDefinitions, 
-        ids = outcomeIds
-      )
-      
-      databaseDetails$cohortId <- cohortId
-      databaseDetails$outcomeIds <- outcomeIds
-      
-      
-      ParallelLogger::logInfo(paste0("Target Cohort: ", cohortName, ' generating'))
-      
-      diag <- tryCatch({PatientLevelPrediction::diagnostic(
-        cdmDatabaseName = cdmDatabaseName,
-        cohortName = cohortName, 
-        outcomeNames = outcomeNames, 
+      list(
         databaseDetails = databaseDetails,
-        restrictPlpDataSettings = PatientLevelPrediction::createRestrictPlpDataSettings(sampleSize = sampleSize),
-        populationSettings = PatientLevelPrediction::createStudyPopulationSettings(
-          includeAllOutcomes = F, 
-          firstExposureOnly = F, 
-          washoutPeriod = 0, 
-          requireTimeAtRisk = F, 
-          removeSubjectsWithPriorOutcome = F, 
-          riskWindowStart = 0, 
-          riskWindowEnd = 9999
-          ),
-        outputFolder = file.path(outputFolder, 'diagnostics'), 
-        minCellCount = minCellCount
-      )},
+        modelDesignList = predictionAnalysisList$analyses,
+        onlyFetchData =  onlyFetchData || (runDiagnostic && !runAnalyses),
+        splitSettings = predictionAnalysisList$splitSettings,
+        cohortDefinitions = predictionAnalysisList$cohortDefinitions,
+        logSettings = logSettings,
+        saveDirectory = outputFolder
+      )
+    )
+  }
+  
+  if(runDiagnostic){
+    ParallelLogger::logInfo(paste0("Creating diagnostic results for ",cdmDatabaseName))
+    
+    settings <- utils::read.csv(file.path(outputFolder, 'settings.csv'))
+    
+    settings <- settings %>% 
+      dplyr::select(.data$targetName, .data$outcomeName, .data$dataLocation) %>% 
+      dplyr::mutate(target = paste0(.data$targetName, '-' , .data$dataLocation))
+    
+    length(unique(settings$target))
+    
+    # run diagnostic
+    for(i in 1:length(unique(settings$target))){
+      
+      setOfInt <- settings %>% dplyr::filter(.data$target  == unique(settings$target)[i])
+      
+      ParallelLogger::logInfo(paste0("Target Cohort: ", unique(setOfInt$targetName), ' generating'))
+      
+      diagnosticData <- PatientLevelPrediction::loadPlpData(file.path(outputFolder, setOfInt$dataLocation[1]))
+      diagnosticData$cohorts$cohortId <- i*100000+diagnosticData$cohorts$cohortId
+      
+      diag <- tryCatch(
+        {
+          PatientLevelPrediction::diagnostic( 
+            plpData = diagnosticData,
+            cdmDatabaseName = cdmDatabaseName,
+            cohortName = unique(setOfInt$target), 
+            outcomeNames = unique(setOfInt$outcomeName), 
+            databaseDetails = NULL,
+            populationSettings = PatientLevelPrediction::createStudyPopulationSettings(
+              includeAllOutcomes = F, 
+              firstExposureOnly = F, 
+              washoutPeriod = 0, 
+              requireTimeAtRisk = F, 
+              removeSubjectsWithPriorOutcome = F, 
+              riskWindowStart = 0, 
+              riskWindowEnd = 9999
+            ),
+            outputFolder = file.path(outputFolder, 'diagnostics'), 
+            minCellCount = minCellCount
+          )
+        },
         error = function(err) {
           # error handler picks up where error was generated
           ParallelLogger::logError(paste("Diagnostic error:  ",err))
           return(NULL)
           
-        })
+        }
+      )
     }
     
     
@@ -229,57 +254,6 @@ execute <- function(
     
   }
   
-  if(runAnalyses || onlyFetchData){
-    if(onlyFetchData) {
-      ParallelLogger::logInfo("Only fetching data and not running predictions")
-    } else {
-      ParallelLogger::logInfo("Running predictions")
-    }
-  
-    predictionAnalysisListFile <- system.file("settings",
-                                              "predictionAnalysisList.json",
-                                              package = "SkeletonPredictionStudy")
-    
-    predictionAnalysisList <- tryCatch(
-      {PatientLevelPrediction::loadPlpAnalysesJson(file.path(predictionAnalysisListFile))},
-      error= function(cond) {
-        ParallelLogger::logInfo('Issue when loading json file...');
-        ParallelLogger::logError(cond)
-      })
-    
-    # add sample settings
-    if(!is.null(sampleSize)){
-      ParallelLogger::logInfo('Adding sample settings')
-      for(i in 1:length(predictionAnalysisList$analyses)){
-        predictionAnalysisList$analyses[[i]]$restrictPlpDataSettings$sampleSize <- sampleSize
-      }
-    }
-  
-    # add code to add database settings for covariates...
-    #[TODO]
-    for(i in 1:length(predictionAnalysisList$analyses)){
-      ParallelLogger::logInfo('Updating cohort covariate settings is being used')
-      predictionAnalysisList$analyses[[i]]$covariateSettings <- addCohortSettings(
-        covariateSettings = predictionAnalysisList$analyses[[i]]$covariateSettings, 
-        cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema, 
-        cohortTable = databaseDetails$cohortTable
-      )
-    }
-
-    result <- do.call(
-      PatientLevelPrediction::runMultiplePlp, 
-      
-      list(
-        databaseDetails = databaseDetails,
-        modelDesignList = predictionAnalysisList$analyses,
-        onlyFetchData = onlyFetchData,
-        splitSettings = predictionAnalysisList$splitSettings,
-        cohortDefinitions = predictionAnalysisList$cohortDefinitions,
-        logSettings = logSettings,
-        saveDirectory = outputFolder
-        )
-    )
-  }
   
   if (packageResults) {
     ensure_installed("OhdsiSharing")
