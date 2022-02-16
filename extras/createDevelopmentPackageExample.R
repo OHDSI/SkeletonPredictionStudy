@@ -1,7 +1,7 @@
-source('D:/GitHub/SkeletonPredictionStudy/extras/createDevelopmentPackageFunctions.R')
+source(file.path(getwd(),'extras/createDevelopmentPackageFunctions.R'))
+#devtools::source_url("https://raw.github.com/ohdsi/SkeletonPredictionStudy/issue242/extras/createDevelopmentPackageFunctions.R")
 
 packageName <- 'ExamplePrediction'
-
 baseUrl <- 'https://api.ohdsi.org/WebAPI/'
 
 # create a model to predict cohortId 2 in patients in cohortId 1
@@ -96,7 +96,8 @@ jsonList <- createDevelopmentSkeletonSettings(
 createDevelopmentPackage(
   jsonList = jsonList, 
   baseUrl = baseUrl,
-  skeletonLocation = 'D:/GitHub/SkeletonPredictionStudy', 
-  outputLocation = 'D:/testing',
+  #skeletonLocation = 'D:/GitHub/SkeletonPredictionStudy', 
+  skeletonUrl = "https://github.com/ohdsi/SkeletonPredictionStudy/archive/master.zip",
+  outputLocation = '/Users/jreps/Documents/testing2',
   packageName = packageName
   )

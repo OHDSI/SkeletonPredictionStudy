@@ -1,6 +1,6 @@
-# Copyright 2020 Observational Health Data Sciences and Informatics
+# Copyright 2022 Observational Health Data Sciences and Informatics
 #
-# This file is part of SkeletonCompartiveEffectStudy
+# This file is part of SkeletonPredictionStudy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,59 +14,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' Create the exposure and outcome cohorts
-#'
-#' @details
-#' This function will create the exposure and outcome cohorts following the definitions included in
-#' this package.
-#'
-#' @param databaseDetails      The databaseDetails
-#' @param outputFolder         Name of local folder to place results; make sure to use forward slashes
-#'                             (/)                         
-#'
-#' @export
-createCohorts <- function(databaseDetails,
-                          outputFolder) {
-  if (!file.exists(outputFolder)){
+createCohorts <- function(
+  databaseDetails,
+  outputFolder
+) {
+  if (!file.exists(outputFolder))
     dir.create(outputFolder)
-  }
   
-  conn <- DatabaseConnector::connect(databaseDetails$connectionDetails)
+  connection <- DatabaseConnector::connect(databaseDetails$connectionDetails)
+  on.exit(DatabaseConnector::disconnect(connection))
   
-  .createCohorts(
-    connection = conn,
-    cdmDatabaseSchema = databaseDetails$cdmDatabaseSchema,
-    cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema,
-    cohortTable = databaseDetails$cohortTable,
-    tempEmulationSchema = databaseDetails$tempEmulationSchema,
-    outputFolder = outputFolder
+  CohortGenerator::createCohortTables(connection = connection,
+                                      cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema,
+                                      cohortTableNames = CohortGenerator::getCohortTableNames(
+                                        cohortTable = databaseDetails$cohortTable
+                                      )
   )
+  cohortDefinitionSet <- CohortGenerator::getCohortDefinitionSet(packageName = "SkeletonPredictionStudy",
+                                                                 settingsFileName = "Cohorts.csv",
+                                                                 cohortFileNameValue = "cohortId")
+  CohortGenerator::generateCohortSet(connection = connection,
+                                     cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema,
+                                     cohortTableNames = databaseDetails$cohortTable,
+                                     cdmDatabaseSchema = databaseDetails$cdmDatabaseSchema,
+                                     tempEmulationSchema = databaseDetails$tempEmulationSchema,
+                                     cohortDefinitionSet = cohortDefinitionSet)
   
+
   # Check number of subjects per cohort:
-  ParallelLogger::logInfo("Counting cohorts")
-  sql <- SqlRender::loadRenderTranslateSql(
-    "GetCounts.sql",
-    "SkeletonPredictionStudy",
-    dbms = connectionDetails$dbms,
-    tempEmulationSchema = databaseDetails$tempEmulationSchema,
-    cdm_database_schema = databaseDetails$cdmDatabaseSchema,
-    work_database_schema = databaseDetails$cohortDatabaseSchema,
-    study_cohort_table = databaseDetails$cohortTable
-  )
-  counts <- DatabaseConnector::querySql(conn, sql)
-  colnames(counts) <- SqlRender::snakeCaseToCamelCase(colnames(counts))
-  counts <- addCohortNames(counts)
-  utils::write.csv(counts, file.path(outputFolder, "CohortCounts.csv"), row.names = FALSE)
+  message("Counting cohorts")
+  counts <- CohortGenerator::getCohortCounts(connection = connection,
+                                             cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema,
+                                             cohortTable = databaseDetails$cohortTable)
   
-  DatabaseConnector::disconnect(conn)
+  counts <- addCohortNames(counts)
+  write.csv(counts, file.path(outputFolder, "CohortCounts.csv"), row.names = FALSE)
 }
 
-addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumnName = "cohortName") {
-  pathToCsv <- system.file("settings", "CohortsToCreate.csv", package = "SkeletonPredictionStudy")
-  cohortsToCreate <- utils::read.csv(pathToCsv)
-  
-  idToName <- data.frame(cohortId = c(cohortsToCreate$cohortId),
-                         cohortName = c(as.character(cohortsToCreate$name)))
+addCohortNames <- function(data, IdColumnName = "cohortId", nameColumnName = "cohortName") {
+  pathToCsv <- system.file("Cohorts.csv", package = "SkeletonPredictionStudy")
+
+  idToName <- read.csv(pathToCsv)
   idToName <- idToName[order(idToName$cohortId), ]
   idToName <- idToName[!duplicated(idToName$cohortId), ]
   names(idToName)[1] <- IdColumnName
@@ -75,7 +63,7 @@ addCohortNames <- function(data, IdColumnName = "cohortDefinitionId", nameColumn
   # Change order of columns:
   idCol <- which(colnames(data) == IdColumnName)
   if (idCol < ncol(data) - 1) {
-    data <- data[, c(1:idCol, ncol(data) , (idCol+1):(ncol(data)-1))]
+    data <- data[, c(1:idCol, ncol(data) , (idCol + 1):(ncol(data) - 1))]
   }
   return(data)
 }

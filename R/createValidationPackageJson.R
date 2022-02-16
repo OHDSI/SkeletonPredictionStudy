@@ -26,9 +26,11 @@ createValidationPackage <- function(
   packageLoc <- file.path(outputFolder, validationPackageName)
   
   # get settings
-  plpSettingsLocation <- system.file("settings",
+  plpSettingsLocation <- system.file(
+    "settings",
     "predictionAnalysisList.json",
-    package = devPackageName)
+    package = devPackageName
+    )
   plpSettings <- PatientLevelPrediction::loadPlpAnalysesJson(plpSettingsLocation)
   ParallelLogger::logInfo('Loaded development json')
   
@@ -160,7 +162,7 @@ nonHydraSkeleton <- function(
     jsonList = jsonList
   )
   
-  # copy cohorts and cohortsToCreate.csv from development package
+  # copy cohorts and Cohorts.csv from development package
   saveCohorts(
     developmentPackage = developmentPackageName,
     packageLocation = packageLocation,
@@ -256,8 +258,7 @@ saveCohorts <- function(
   # get the csv of cohorts from the development
   cohortDf <- utils::read.csv(
     system.file(
-      "settings",
-      "CohortsToCreate.csv",
+      "Cohorts.csv",
       package = developmentPackage
     )
   )
@@ -266,9 +267,9 @@ saveCohorts <- function(
   
   cohortDf <- cohortDf[inds,]
   ParallelLogger::logInfo('Saving CohortsToCreate.csv')
-  utils::write.csv(x = cohortDf, file = file.path(packageLocation, 'inst', 'settings', 'CohortsToCreate.csv'))
+  utils::write.csv(x = cohortDf, file = file.path(packageLocation, 'inst', 'Cohorts.csv'))
   
-  for( fileName in cohortDf$name ){
+  for( fileName in cohortDf$cohortId ){
     cohortLoc <- system.file(
       "cohorts",
       paste0(fileName, '.json'),

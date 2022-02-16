@@ -152,7 +152,7 @@ execute <- function(
     # add code to add database settings for covariates...
     #[TODO]
     for(i in 1:length(predictionAnalysisList$analyses)){
-      ParallelLogger::logInfo('Updating cohort covariate settings is being used')
+      ParallelLogger::logInfo('Updating as cohort covariate settings is being used')
       predictionAnalysisList$analyses[[i]]$covariateSettings <- addCohortSettings(
         covariateSettings = predictionAnalysisList$analyses[[i]]$covariateSettings, 
         cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema, 

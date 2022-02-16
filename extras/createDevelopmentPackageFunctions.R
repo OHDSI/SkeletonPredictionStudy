@@ -104,7 +104,8 @@ createDevelopmentPackage <- function(
   jsonList = NULL,
   jsonFileLocation = NULL, 
   baseUrl,
-  skeletonLocation, 
+  skeletonLocation,
+  skeletonUrl = "https://github.com/ohdsi/SkeletonPredictionStudy/archive/master.zip",
   outputLocation,
   packageName){
   
@@ -119,11 +120,28 @@ createDevelopmentPackage <- function(
     dir.create(packageLocation, recursive = T)
   }
   
+  if(!missing(skeletonLocation)){
   # copy the skeleton to the output location
   file.copy(list.files(skeletonLocation, full.names = TRUE), 
     to = packageLocation, 
     recursive = TRUE
     )
+  } else if(!missing(skeletonUrl)){
+    utils::download.file(
+      url = skeletonUrl,
+      destfile = file.path(outputLocation,"plp-skeleton.zip")
+      )
+    # unzip the .zip file
+    utils::unzip(zipfile = file.path(outputLocation, "plp-skeleton.zip"), 
+                 exdir = outputLocation
+                 )
+    #rename
+    file.rename(file.path(outputLocation,'SkeletonPredictionStudy-master'), packageLocation)
+    
+  } else{
+    stop('Please enter either skeletonLocation or skeletonUrl')
+  }
+  
   
   # replace 'SkeletonPredictionStudy' with packageName 
   replaceName(
@@ -206,22 +224,25 @@ saveCohorts <- function(
   baseUrl
   ){
   
-  nameForFile <- function(name){
-    name <- gsub(' ','_', name)
-    name <- gsub("[[:punct:]]", "_", name)
-    return(name)
-  }
-  
-  details <- lapply(1:length(analysisList$cohortDefinitions), function(i){c(name = analysisList$cohortDefinitions[[i]]$name,
-    cohortId = analysisList$cohortDefinitions[[i]]$id,
-    atlasId = analysisList$cohortDefinitions[[i]]$id)})
+
+  details <- lapply(
+    1:length(analysisList$cohortDefinitions), 
+    function(i){
+      c(
+        cohortName = analysisList$cohortDefinitions[[i]]$name,
+        cohortId = analysisList$cohortDefinitions[[i]]$id,
+        webApiCohortId = analysisList$cohortDefinitions[[i]]$id 
+      )
+    }
+  )
   details <- do.call('rbind', details)
   details <- as.data.frame(details, stringsAsFactors = F)
-  details$name <- nameForFile(details$name) # failing dev
-  
-  write.csv(x = details,
-    file = file.path(packageLocation, 'inst', 'settings','cohortsToCreate.csv'),
-    row.names = F)
+
+  write.csv(
+    x = details,
+    file = file.path(packageLocation, 'inst','Cohorts.csv'),
+    row.names = F
+    )
   
   # make sure cohorts and sql/sql_server exist
   if(!dir.exists(file.path(packageLocation, 'inst', 'cohorts'))){
@@ -238,7 +259,7 @@ saveCohorts <- function(
       jsonObject  <- jsonlite::serializeJSON(analysisList$cohortDefinitions[[i]], digits = 23)
       write(
         x = jsonObject,
-        file = file.path(packageLocation, 'inst', 'cohorts', paste0(nameForFile(analysisList$cohortDefinitions[[i]]$name),'.json'))
+        file = file.path(packageLocation, 'inst', 'cohorts', paste0(analysisList$cohortDefinitions[[i]]$id,'.json'))
       )
     }
   )
@@ -249,7 +270,7 @@ saveCohorts <- function(
     function(i){
       write(
         x = ROhdsiWebApi::getCohortSql(analysisList$cohortDefinitions[[i]], baseUrl = baseUrl, generateStats = F),
-        file = file.path(packageLocation, 'inst', 'sql', 'sql_server', paste0(nameForFile(analysisList$cohortDefinitions[[i]]$name), '.sql'))
+        file = file.path(packageLocation, 'inst', 'sql', 'sql_server', paste0(analysisList$cohortDefinitions[[i]]$id, '.sql'))
       )
     }
   )

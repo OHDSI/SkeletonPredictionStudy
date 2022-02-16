@@ -1,6 +1,6 @@
 {
   "skeletonType": "PatientLevelPredictionStudy",
-  "skeletonVersion": "v0.0.1",
+  "skeletonVersion": "v1.0.1",
   "requiredHydraVersion": "v0.0.3",
   "actions":[{
     "type": "fileNameFindAndReplace",
@@ -13,10 +13,10 @@
   },{
     "type": "jsonArrayToCsv",
     "input": "cohortDefinitions",
-    "mapping": [{"source": "id", "target": "cohortId"},
-                {"source": "id", "target": "atlasId"},
-                {"source": "name", "target": "name", "modifiers": ["convertToFileName"]}],
-    "output": "inst/settings/CohortsToCreate.csv"
+    "mapping": [{"source": "id", "target": "webApiCohortId"},
+                {"source": "id", "target": "cohortId"},
+                {"source": "name", "target": "cohortName"}],
+    "output": "inst/Cohorts.csv"
   },{
     "type": "jsonArrayToJson",
     "input": "cohortDefinitions",

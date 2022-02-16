@@ -9,9 +9,11 @@
 createPlpProtocol <- function(predictionAnalysisListFile = NULL, outputLocation = getwd()){
   
   if(is.null(predictionAnalysisListFile)){
-    predictionAnalysisListFile <- system.file("settings",
+    predictionAnalysisListFile <- system.file(
+      "settings",
       "predictionAnalysisList.json",
-      package = "SkeletonPredictionStudy")
+      package = "SkeletonPredictionStudy"
+      )
   }
   
   #figure1 <- 'vignettes/Figure1.png'
