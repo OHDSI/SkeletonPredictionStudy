@@ -18,9 +18,3 @@ Instructions
 - [Instructions to share an ATLAS generated study library on github](STUDY-PACKAGE-SHARE.md)
 - [Instructions to execute the study ](STUDY-PACKAGE-EXECUTE.md)
 
-Extras
-========================================================
-
-For information on how to generate shiny apps using the R skeleton package see: [Creating shiny app for patient-level prediction studies](https://raw.githubusercontent.com/OHDSI/PatientLevelPrediction/testcode/inst/doc/CreatingShinyApp.pdf).  To combine multiple skeleton package results into a single shiny app [see populate multiple shiny app R code code](https://github.com/OHDSI/SkeletonPredictionStudy/blob/master/extras/populateMultipleShiny.R)
-
-For information on adding custom covariates based on ATLAS cohorts see:  [Adding custom covariates using ATLAS cohorts](https://raw.githubusercontent.com/OHDSI/SkeletonPredictionStudy/master/inst/doc/AddingCohortCovariates.pdf).

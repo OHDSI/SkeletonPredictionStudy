@@ -111,7 +111,7 @@ createValidationPackage <- function(
       outputFolder = outputFolder,
       developmentPackageName = devPackageName,
       validationPackageName = validationPackageName,
-      packageLocation =  packageLocation,
+      packageLocation =  packageLoc,
       jsonList = jsonList,
       cohortDefinitions = cohortDefinitions
     )
@@ -187,10 +187,10 @@ downLoadSkeleton <- function(
   
   # download, unzip and rename:
   
-  download.file(url = paste0("https://github.com/ohdsi/",skeletonType,"/archive/master.zip")
+  utils::download.file(url = paste0("https://github.com/ohdsi/",skeletonType,"/archive/master.zip")
     , destfile = file.path(outputFolder, "package.zip"))
   # unzip the .zip file
-  unzip(zipfile = file.path(outputFolder, "package.zip"), exdir = outputFolder)
+  utils::unzip(zipfile = file.path(outputFolder, "package.zip"), exdir = outputFolder)
   file.rename( from = file.path(outputFolder, paste0(skeletonType, '-master')),
     to = file.path(outputFolder,  packageName))
   unlink(file.path(outputFolder, "package.zip"))

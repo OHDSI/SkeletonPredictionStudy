@@ -48,13 +48,13 @@ createCohorts <- function(
                                              cohortTable = databaseDetails$cohortTable)
   
   counts <- addCohortNames(counts)
-  write.csv(counts, file.path(outputFolder, "CohortCounts.csv"), row.names = FALSE)
+  utils::write.csv(counts, file.path(outputFolder, "CohortCounts.csv"), row.names = FALSE)
 }
 
 addCohortNames <- function(data, IdColumnName = "cohortId", nameColumnName = "cohortName") {
   pathToCsv <- system.file("Cohorts.csv", package = "SkeletonPredictionStudy")
 
-  idToName <- read.csv(pathToCsv)
+  idToName <- utils::read.csv(pathToCsv)
   idToName <- idToName[order(idToName$cohortId), ]
   idToName <- idToName[!duplicated(idToName$cohortId), ]
   names(idToName)[1] <- IdColumnName

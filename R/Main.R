@@ -176,7 +176,7 @@ execute <- function(
   }
   
   if(runDiagnostic){
-    ParallelLogger::logInfo(paste0("Creating diagnostic results for ",cdmDatabaseName))
+    ParallelLogger::logInfo(paste0("Creating diagnostic results for ",databaseDetails$cdmDatabaseName))
     
     settings <- utils::read.csv(file.path(outputFolder, 'settings.csv'))
     
@@ -200,7 +200,7 @@ execute <- function(
         {
           PatientLevelPrediction::diagnostic( 
             plpData = diagnosticData,
-            cdmDatabaseName = cdmDatabaseName,
+            cdmDatabaseName = databaseDetails$cdmDatabaseName,
             cohortName = unique(setOfInt$target), 
             outcomeNames = unique(setOfInt$outcomeName), 
             databaseDetails = NULL,
@@ -239,12 +239,6 @@ execute <- function(
     } else if(!checkShinyViewer){
       warning('No DiagnosticsExplorer shiny app found in your PatientLevelPrediction library - try updating PatientLevelPrediction')
     } else{
-      ensure_installed("shiny")
-      ensure_installed("shinydashboard")
-      ensure_installed("DT")
-      ensure_installed("VennDiagram")
-      ensure_installed("htmltools")
-      ensure_installed("shinyWidgets")
       shinyDirectory <- system.file("shiny", "DiagnosticsExplorer", package = "PatientLevelPrediction")
       shinySettings <- list(dataFolder = file.path(outputFolder, 'diagnostics'))
       .GlobalEnv$shinySettings <- shinySettings
@@ -269,7 +263,7 @@ execute <- function(
         
         createValidationPackage(
           devPackageName = 'SkeletonPredictionStudy',
-          devDatabaseName = cdmDatabaseName,
+          devDatabaseName = databaseDetails$cdmDatabaseName,
           analysisLocation = outputFolder,
           analysisIds = analysesToValidate,
           outputFolder = outputFolder,

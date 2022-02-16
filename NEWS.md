@@ -1,3 +1,9 @@
+SkeletonPredictionStudy 1.0.2
+======================
+  - Cleaned r package check 
+
+
+
 SkeletonPredictionStudy 1.0.1
 ======================
   - Using CohortGenerator package for cohort creation
