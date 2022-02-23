@@ -187,11 +187,11 @@ downLoadSkeleton <- function(
   
   # download, unzip and rename:
   
-  utils::download.file(url = paste0("https://github.com/ohdsi/",skeletonType,"/archive/master.zip")
+  utils::download.file(url = paste0("https://github.com/ohdsi/",skeletonType,"/archive/main.zip")
     , destfile = file.path(outputFolder, "package.zip"))
   # unzip the .zip file
   utils::unzip(zipfile = file.path(outputFolder, "package.zip"), exdir = outputFolder)
-  file.rename( from = file.path(outputFolder, paste0(skeletonType, '-master')),
+  file.rename( from = file.path(outputFolder, paste0(skeletonType, '-main')),
     to = file.path(outputFolder,  packageName))
   unlink(file.path(outputFolder, "package.zip"))
   return(file.path(outputFolder, packageName))
