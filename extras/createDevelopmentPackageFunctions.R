@@ -116,8 +116,8 @@ createDevelopmentPackage <- function(
   }
 
   # create the output location
-  if(!dir.exists(packageLocation)){
-    dir.create(packageLocation, recursive = T)
+  if(!dir.exists(outputLocation)){
+    dir.create(outputLocation, recursive = T)
   }
   
   if(!missing(skeletonLocation)){
