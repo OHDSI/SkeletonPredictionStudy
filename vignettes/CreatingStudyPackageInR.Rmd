@@ -37,7 +37,7 @@ The additional features include:
 # Setting up
 
 - Make sure you have PatientLevelPrediction installed and all dependancies (see installation guide in PatientLevelPrediction)
-- Install the dependencies for the skeleton (source the file at: [https://github.com/OHDSI/SkeletonPredictionStudy/blob/master/extras/packageDeps.R](https://github.com/OHDSI/SkeletonPredictionStudy/blob/master/extras/packageDeps.R) )
+- Install the dependencies for the skeleton (source the file at: [https://github.com/OHDSI/SkeletonPredictionStudy/blob/main/extras/packageDeps.R](https://github.com/OHDSI/SkeletonPredictionStudy/blob/main/extras/packageDeps.R) )
 - Install Hydra (https://github.com/OHDSI/Hydra) - this package will use the settings json object you create and generate a Study Package to develop the specified models.
 
 # Creating Study Package
@@ -118,7 +118,7 @@ executionSettings <- list(washoutPeriod = 365,
 
 ## Step 2: Creating the JSON
 
-For the json creation you will need to source the code found at: https://github.com/OHDSI/SkeletonPredictionStudy/blob/master/extras/createPredSkelJson.R to load the function 'createDevelopmentStudyJson'. 
+For the json creation you will need to source the code found at: https://github.com/OHDSI/SkeletonPredictionStudy/blob/main/extras/createPredSkelJson.R to load the function 'createDevelopmentStudyJson'. 
 
 - The webApi for the ATLAS that contains the target and outcome cohorts (the cohort jsons will be extarcted using a get request)
 ```{r, eval=FALSE}

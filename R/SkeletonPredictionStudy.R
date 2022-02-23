@@ -23,4 +23,5 @@
 #' @docType package
 #' @name SkeletonPredictionStudy
 #' @importFrom magrittr %>%
+#' @importFrom rlang .data
 NULL
