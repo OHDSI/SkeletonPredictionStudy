@@ -4,9 +4,11 @@
 \alias{createPlpProtocol}
 \title{Create a protocol template for the study}
 \usage{
-createPlpProtocol(outputLocation = getwd())
+createPlpProtocol(predictionAnalysisListFile = NULL, outputLocation = getwd())
 }
 \arguments{
+\item{predictionAnalysisListFile}{the location of the json analysis settings}
+
 \item{outputLocation}{Directory location where you want the protocol written to}
 }
 \description{

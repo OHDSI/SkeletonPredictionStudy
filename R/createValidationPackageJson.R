@@ -1,13 +1,16 @@
-createValidationPackageJson <- function(devPackageName = 'SkeletonPredictionStudy',
-                                        devDatabaseName,
-                                        analysisLocation,
-                                        analysisIds = NULL,
-                                        outputFolder,
-                                        packageName,
-                                        description = 'missing',
-                                        skeletonVersion = 'v1.0.0',
-                                        createdBy = 'anonymous',
-                                        organizationName = 'none'){
+createValidationPackage <- function(
+  devPackageName = 'SkeletonPredictionStudy',
+  devDatabaseName,
+  analysisLocation,
+  analysisIds = NULL,
+  outputFolder,
+  validationPackageName,
+  description = 'missing',
+  createdBy = 'anonymous',
+  organizationName = 'none',
+  useHydra = F,
+  skeletonVersion = 'v1.0.0'
+){
   
   if(missing(analysisLocation)){
     stop('Must Enter analysisLocation')
@@ -15,299 +18,324 @@ createValidationPackageJson <- function(devPackageName = 'SkeletonPredictionStud
   if(missing(outputFolder)){
     stop('Must Enter outputFolder')
   }
-  if(missing(packageName)){
-    stop('Must Enter packageName')
+  if(missing(validationPackageName)){
+    stop('Must Enter validationPackageName')
   }
   
   
-  packageLoc <- file.path(outputFolder, packageName)
+  packageLoc <- file.path(outputFolder, validationPackageName)
   
   # get settings
-  plpSettingsLocation <- system.file("settings",
-                                     "predictionAnalysisList.json",
-                                     package = devPackageName)
-  plpSettings <- Hydra::loadSpecifications(plpSettingsLocation)
-  plpSettings  <- RJSONIO::fromJSON(plpSettings)
-  cohortDefinitions <- plpSettings$cohortDefinitions
+  plpSettingsLocation <- system.file(
+    "settings",
+    "predictionAnalysisList.json",
+    package = devPackageName
+    )
+  plpSettings <- PatientLevelPrediction::loadPlpAnalysesJson(plpSettingsLocation)
+  ParallelLogger::logInfo('Loaded development json')
   
-  # get models
+  # get models specified by user
+  #======
   results <- dir(file.path(analysisLocation), pattern = 'Analysis_')
   if(!is.null(analysisIds)){
     results <- results[gsub('Analysis_','',results) %in% analysisIds]
   }
+  
+  if(length(results) == 0 ){
+    ParallelLogger::logInfo('No valid analyses selected')
+    return(NULL)
+  }
+  
+  ParallelLogger::logInfo(paste0('Loading models: ', paste0(results, collapse = ',')))
   
   modelJson <- list()
   length(modelJson) <- length(results)
   
   for(i in 1:length(results)){
     
-    plpModel <- PatientLevelPrediction::loadPlpResult(file.path(analysisLocation,
-                                                                results[i],
-                                                                'plpResult')
+    modelJson[[i]] <- PatientLevelPrediction::loadPlpModel(
+      file.path(
+        analysisLocation,
+        results[i],
+        'plpResult',
+        'model'
+      )
     )
     
-    modelJson[[i]] <- createModelSettingsJson(modelName = results[i],
-                                              plpModel = plpModel$model,
-                                              devDatabaseName = devDatabaseName,
-                                              cohortId = plpModel$inputSetting$dataExtrractionSettings$cohortId,
-                                              outcomeId = plpModel$inputSetting$populationSettings$outcomeId,
-                                              populationSettings = NULL,
-                                              cohortDefinitions = cohortDefinitions)
+  }
+  #======
+  
+  # get the cohorts of interest from the models
+  #======
+  cohortDefinitions <- extractCohorts(modelJson, plpSettings$cohortDefinitions)
+  ParallelLogger::logInfo('Restricted CohortDefinitions')
+  #======
+  
+  # create the validation json settings 
+  #======
+  
+  jsonList <- createValidationJson(
+    packageName = validationPackageName,
+    description = description,
+    createdBy = createdBy,
+    organizationName = organizationName,
+    modelsJson = modelJson,
+    cohortDefinitions = cohortDefinitions
+  )
+  ParallelLogger::logInfo('created jsonList')
+  
+  #======
+  
+  #======
+  # create the skeleton package
+  #======
+  if(useHydra){
+    ensure_installed("Hydra")
+    if(!is_installed("Hydra", version = '0.0.8')){
+      warning('Hydra need to be updated to use custom cohort covariates')
+    }
+    
+    jsonList$skeletonVersion <- skeletonVersion
+    jsonSet <- jsonlite::serializeJSON(jsonList, digits = 23)
+    
+    Hydra::hydrate(
+      jsonSet,
+      outputFolder = packageLoc
+    )
+    
+    ParallelLogger::logInfo('Skeleton package created using Hydra')
+    
+  } else{
+    
+    nonHydraSkeleton(
+      outputFolder = outputFolder,
+      developmentPackageName = devPackageName,
+      validationPackageName = validationPackageName,
+      packageLocation =  packageLoc,
+      jsonList = jsonList,
+      cohortDefinitions = cohortDefinitions
+    )
+    
+    ParallelLogger::logInfo('Skeleton package created using R functions')
+    
   }
   
-  
-  jsonSet <- createValidationJson(packageName = packageName,
-                                  description = description,
-                                  skeletonVersion = skeletonVersion,
-                                  createdBy = createdBy,
-                                  organizationName = organizationName,
-                                  modelsJson = modelJson)
-  
-  jsonSet <- RJSONIO::toJSON(jsonSet, digits = 23)
-  Hydra::hydrate(jsonSet,
-                 outputFolder = packageLoc)
-  
-  transportModelsToJson(modelJson, packageLoc)
+  #======
+  # insert the models into the package
+  #======
+  transportModelsToJson(
+    modelJson, 
+    packageLoc
+  )
+  ParallelLogger::logInfo('Prediction models inserted into package')
   
   return(packageLoc)
 }
 
 
 
-
-
-
-
-createModelSettingsJson <- function(modelName, plpModel,
-                                    devDatabaseName,
-                                    cohortId, outcomeId,
-                                    populationSettings = NULL,
-                                    cohortDefinitions = NULL,
-                                    baseUrl = NULL,
-                                    authMethod = NULL,
-                                    webApiUser = NULL,
-                                    webApiPw = NULL){
+nonHydraSkeleton <- function(
+  outputFolder,
+  developmentPackageName,
+  validationPackageName,
+  packageLocation,
+  jsonList,
+  cohortDefinitions
+){
   
-  if(base::missing(modelName)){
-    stop('modelName required')
-  }
-  if(base::missing(plpModel)){
-    stop('plpModel required')
-  }
-  if(!class(plpModel) %in% c('plpModel')){
-    stop('Wrong plpModel object')
-  }
-  if(base::missing(cohortId)){
-    stop('cohortId required')
-  }
-  if(base::missing(outcomeId)){
-    stop('outcomeId required')
-  }
-  
-  # check either cohortDefinitions or baseUrl
-  if(!is.null(cohortDefinitions)){
-    if(!class(cohortDefinitions) %in% c('list')){
-      stop('Wrong cohortDefinitions object')
-    }
-    useWebApi <- F
-  } else{
-    if(is.null(baseUrl)){
-      stop('Missing cohortDefinitions and baseUrl')
-    }
-    useWebApi <- T
-  }
-  
-  plpModel <- removeSensitive(plpModel) # replace this with just extracting main parts
-  
-  model <- list()
-  model$name <- modelName
-  model$attr_type <- attr(plpModel, 'type')
-  if(model$attr_type  == 'pythonReticulate'){
-    model$attr_type <- 'pythonJson'
-  }
-  model$attr_predictionType <- attr(plpModel, 'predictionType')
-  
-  model$cohortId <- cohortId
-  model$outcomeId <- outcomeId
-  
-  if(is.null(populationSettings)){
-    plpModel$populationSettings$attrition <- NULL
-    model$populationSettings <- plpModel$populationSettings
-  } else{
-    
-    model$populationSettings <- populationSettings
-  }
-  
-  if(class(plpModel$metaData$call$covariateSettings) == 'covariateSettings'){
-    model$covariateSettings <- convertCovariateSettings(plpModel$metaData$call$covariateSettings)
-  } else{
-    model$covariateSettings <- lapply(1:length(plpModel$metaData$call$covariateSettings),
-                                      function(i){convertCovariateSettings(plpModel$metaData$call$covariateSettings[[i]])})
-  }
-  
-  cohortIds <- unique(c(cohortId,outcomeId, getCovariateCohorts(model$covariateSettings)))
-  
-  if(!useWebApi){
-    cohortDefinitionsOfInt <- extractCohortDefinitionsJson(cohortDefinitions, cohortIds)
-  } else{
-    cohortDefinitionsOfInt <- extractCohortDefinitionsWebApi(baseUrl,
-                                                             authMethod,
-                                                             webApiUser,
-                                                             webApiPw,
-                                                             cohortIds)
-  }
-  
-  # add the extras things that are needed for the prediction
-  model$settings <- list(cohortId = model$populationSettings$cohortId,
-                         outcomeId = model$populationSettings$outcomeId,
-                         dense = plpModel$dense,
-                         metaData = list(preprocessSettings = list(deletedRedundantCovariateIds = plpModel$metaData$preprocessSettings$deletedRedundantCovariateIds,
-                                                                   deletedInfrequentCovariateIds = plpModel$metaData$preprocessSettings$deletedInfrequentCovariateIds,
-                                                                   normFactors = plpModel$metaData$preprocessSettings$normFactors),
-                                         call = list(connectionDetails = NULL,
-                                                     cdmDatabaseSchema =  devDatabaseName)
-                         )
-                         
+  packageLocation <- downLoadSkeleton(
+    outputFolder = outputFolder,
+    packageName = validationPackageName,
+    skeletonType = 'SkeletonPredictionValidationStudy'
   )
   
-  result <- list(modelSettingsJson = model,
-                 model = plpModel$model,
-                 covariateMap = plpModel$covariateMap,
-                 varImp = plpModel$varImp,
-                 cohortDefinitions = cohortDefinitionsOfInt)
-  class(result) <- 'modelsJson'
+  # replace 'SkeletonPredictionValidationStudy' with packageName 
+  replaceName(
+    packageLocation = packageLocation,
+    packageName = validationPackageName,
+    skeletonType = 'SkeletonPredictionValidationStudy'
+  )
   
-  return(result)
+  # save json file into package
+  saveAnalysisJson(
+    packageLocation = packageLocation,
+    jsonList = jsonList
+  )
+  
+  # copy cohorts and Cohorts.csv from development package
+  saveCohorts(
+    developmentPackage = developmentPackageName,
+    packageLocation = packageLocation,
+    cohortDefinitions = cohortDefinitions
+  )
 }
 
 
-removeSensitive <- function(plpModel){
-  plpModel$predict <- NULL
-  plpModel$index <- NULL
-  plpModel$trainCVAuc <- NULL
-  if(!is.null(names(plpModel$model))){
-    if('cv' %in% names(plpModel$model)){
-      plpModel$model$cv <- NULL
-    }
-  }
-  cvset <- plpModel$metaData$call$covariateSettings
-  plpModel$metaData$preprocessSettings$call <- NULL
-  plpModel$metaData$preprocessSettings$sql <- NULL
-  plpModel$metaData$call <- NULL
-  plpModel$metaData$call$covariateSettings <- cvset
+
+# code to use skeleton master from github rather than hydra
+# download a .zip file of the repository
+# from the "Clone or download - Download ZIP" button
+# on the GitHub repository of interest
+downLoadSkeleton <- function(
+  outputFolder,
+  packageName,
+  skeletonType = 'SkeletonPredictionValidationStudy'
+){
+  # check outputFolder exists
   
-  return(plpModel)
+  # check file.path(outputFolder,  packageName) does not exist
   
+  # download, unzip and rename:
+  
+  utils::download.file(url = paste0("https://github.com/ohdsi/",skeletonType,"/archive/main.zip")
+    , destfile = file.path(outputFolder, "package.zip"))
+  # unzip the .zip file
+  utils::unzip(zipfile = file.path(outputFolder, "package.zip"), exdir = outputFolder)
+  file.rename( from = file.path(outputFolder, paste0(skeletonType, '-main')),
+    to = file.path(outputFolder,  packageName))
+  unlink(file.path(outputFolder, "package.zip"))
+  return(file.path(outputFolder, packageName))
 }
 
-convertCovariateSettings <- function(covariateSettings){
+
+# change name
+replaceName <- function(
+  packageLocation = getwd(),
+  packageName = 'ValidateRCRI',
+  skeletonType = 'SkeletonPredictionValidationStudy'
+){
   
-  fnct <- attr(covariateSettings, "fun")
-  
-  if(fnct == "getDbDefaultCovariateData"){
-    
-    covariateSettings$attr_class <- "covariateSettings"
-    covariateSettings$attr_fun <- "getDbDefaultCovariateData"
-    
-    result <- list(fnct = 'createCovariateSettings',
-                   settings = covariateSettings)
-    
-  } else{
-    
-    fnct <- strsplit(fnct, '::')[[1]][2]
-    fnct <- gsub('get','create', fnct)
-    fnct <- gsub('CovariateData','CovariateSettings', fnct)
-    
-    if(!is.null(covariateSettings$cohortDatabaseSchema)){
-      covariateSettings$cohortDatabaseSchema <- 'to be defined'
-    }
-    if(!is.null(covariateSettings$cohortTable)){
-      covariateSettings$cohortTable <- 'to be defined'
-    }
-    
-    if(!is.null(covariateSettings$scaleMap)){
-      covariateSettings$scaleMap <- deparse(covariateSettings$scaleMap)
-    }
-    
-    result <- list(fnct = fnct,
-                   settings = covariateSettings)
+  filesToRename <- c(paste0(skeletonType,".Rproj"),paste0("R/",skeletonType,".R"))
+  for(f in filesToRename){
+    ParallelLogger::logInfo(paste0('Renaming ', f))
+    fnew <- gsub(skeletonType, packageName, f)
+    file.rename(from = file.path(packageLocation,f), to = file.path(packageLocation,fnew))
   }
   
-  return(result)
+  filesToEdit <- c(
+    file.path(packageLocation,"DESCRIPTION"),
+    file.path(packageLocation,"README.md"),
+    file.path(packageLocation,"extras/CodeToRun.R"
+    ),
+    dir(file.path(packageLocation,"R"), full.names = T)
+  )
+  for( f in filesToEdit ){
+    ParallelLogger::logInfo(paste0('Editing ', f))
+    x <- readLines(f)
+    y <- gsub( skeletonType, packageName, x )
+    cat(y, file=f, sep="\n")
+    
+  }
   
+  return(packageName)
+}
+
+saveAnalysisJson <- function(
+  packageLocation,
+  jsonList
+){
+  
+  
+  jsonList <- jsonlite::serializeJSON(jsonList, digits = 23)
+  write(jsonList, file.path(packageLocation, 'inst', 'settings', 'predictionAnalysisList.json'))
+  
+  return(invisible(packageLocation))
+}
+
+saveCohorts <- function(
+  developmentPackage,
+  packageLocation,
+  cohortDefinitions
+){
+  
+  if(!dir.exists(file.path(packageLocation, 'inst', 'cohorts'))){
+    dir.create(file.path(packageLocation, 'inst', 'cohorts'), recursive = T)
+  }
+  if(!dir.exists(file.path(packageLocation, 'inst', 'sql', 'sql_server'))){
+    dir.create(file.path(packageLocation, 'inst',  'sql', 'sql_server'), recursive = T)
+  }
+  
+  # get the csv of cohorts from the development
+  cohortDf <- utils::read.csv(
+    system.file(
+      "Cohorts.csv",
+      package = developmentPackage
+    )
+  )
+  
+  inds <- cohortDf$cohortId %in% unlist(lapply(cohortDefinitions, function(x) x$id))
+  
+  cohortDf <- cohortDf[inds,]
+  ParallelLogger::logInfo('Saving CohortsToCreate.csv')
+  utils::write.csv(x = cohortDf, file = file.path(packageLocation, 'inst', 'Cohorts.csv'))
+  
+  for( fileName in cohortDf$cohortId ){
+    cohortLoc <- system.file(
+      "cohorts",
+      paste0(fileName, '.json'),
+      package = developmentPackage
+    )
+    
+    ParallelLogger::logInfo(paste0('Saving json for ', fileName))
+    file.copy(
+      from = cohortLoc, 
+      to = file.path(packageLocation, 'inst', 'cohorts')
+    )
+    
+    sqlLoc <- system.file(
+      "sql", 
+      "sql_server",
+      paste0(fileName, '.sql'),
+      package = developmentPackage
+    )
+    
+    ParallelLogger::logInfo(paste0('Saving sql for ', fileName))
+    file.copy(
+      from = sqlLoc, 
+      to = file.path(packageLocation, 'inst', 'sql', 'sql_server')
+    )
+    
+    
+  }
+  
+  return(invisible(T))
 }
 
 
 getCovariateCohorts <- function(covariateSettings){
   
-  if(is.null(covariateSettings$attr_fun)){
-    cohortIds <- do.call('c', lapply(covariateSettings, getCohorts))
-    return(cohortIds)
-  } else{
-    return(NULL)
+  if(class(covariateSettings) == 'covariateSettings'){
+    covariateSettings <- list(covariateSettings)
   }
+  
+  return(unlist(lapply(covariateSettings, function(x) x$cohortId)))
 }
 
-getCohorts <- function(covariateSettings){
+extractCohorts <- function(modelsJson, cohortDefinitions){
   
-  if(class(covariateSettings)!='list'){
-    return(NULL)
-  }
+  targetIds <- unlist(lapply(modelsJson, function(x) x$trainDetails$cohortId))
+  outcomeIds <- unlist(lapply(modelsJson, function(x) x$trainDetails$outcomeId))
+  covariateIds <- unlist(lapply(modelsJson, function(x) getCovariateCohorts(x$settings$covariateSettings)))
   
-  if(covariateSettings$fnct %in% c("createCohortCovariateSettings", "createMeasurementCohortCovariateSettings")){
-    return(covariateSettings$settings$cohortId)
-  }else{
-    return(NULL)
-  }
+  cohortIds <- unique(c(targetIds, outcomeIds, covariateIds))
   
-}
-
-extractCohortDefinitionsJson <- function(cohortDefinitions, cohortIds){
-  
-  cohortDefinitionsIds <- unlist(lapply(1:length(cohortDefinitions),
-                                        function(j){cohortDefinitions[[j]]$id}))
-  
-  cohortDefinitionsRestricted <- list()
-  length(cohortDefinitionsRestricted) <- length(cohortIds)
-  
-  for(i in 1:length(cohortIds)){
-    ind <- min(which(cohortIds[i] == cohortDefinitionsIds))
-    cohortDefinitionsRestricted[[i]] <- cohortDefinitions[[ind]]
-  }
-  
-  return(cohortDefinitionsRestricted)
-  
-}
-
-extractCohortDefinitionsWebApi <- function(baseUrl,
-                                           authMethod,
-                                           webApiUser,
-                                           webApiPw,
-                                           cohortIds){
-  
-  # connect to webApi
-  if(!is.null(authMethod)){
-    ROhdsiWebApi::authorizeWebApi(baseUrl = baseUrl,
-                                  authMethod = authMethod,
-                                  webApiUsername = webApiUser,
-                                  webApiPassword = webApiPw)
-  }
-  
-  # download cohorts..
-  cohortDefinitions <- lapply(cohortIds, function(x){ROhdsiWebApi::getCohortDefinition(cohortId = x, baseUrl = baseUrl)})
+  ind <- unlist(lapply(cohortDefinitions, function(x) x$id))
+  cohortDefinitions <- cohortDefinitions[ind%in%cohortIds]
   
   return(cohortDefinitions)
 }
 
 
-
 # code to create validation json
-createValidationJson <- function(packageName,
-                                 description = "an example of the skeleton",
-                                 skeletonVersion = 'v1.0.0',
-                                 createdBy = 'name',
-                                 organizationName = "add organization",
-                                 modelsJson){
+createValidationJson <- function(
+  packageName,
+  description = "an example of the skeleton",
+  skeletonVersion = 'v1.0.0',
+  createdBy = 'name',
+  organizationName = "add organization",
+  modelsJson,
+  cohortDefinitions
+){
   
   # study details
   settings <- list(skeletonType = "PatientLevelPredictionValidationStudy")
@@ -315,152 +343,38 @@ createValidationJson <- function(packageName,
   settings$packageName <- packageName
   settings$organizationName <- organizationName
   settings$description <- description
-  settings$skeletonVersion <- skeletonVersion
-  settings$createdDate <- Sys.Date()
+  settings$createdDate <- as.character(Sys.Date())
   settings$createdBy <-  createdBy
   
-  cohortDefinitions <- combineCohortDefinitions(modelsJson)
+  # extract the settings and remove the rest
+  settings$analyses <- lapply(modelsJson, function(x){
+    list(
+      trainDetails = x$trainDetails,
+      settings = x$settings
+    )
+  }
+  )
   
   settings$cohortDefinitions <- cohortDefinitions
   
-  # models (list) - name/attr_type/attr_predictionType/pop/cov/cohort ids/cohort names/settings(plpModel)
-  if(class(modelsJson)=='modelsJson'){
-    settings$models <- list(modelsJson$modelSettingsJson)
-  }else{
-    settings$models <- lapply(1:length(modelsJson), function(i){modelsJson[[i]]$modelSettingsJson})
-  }
-  
   return(settings)
-}
-
-combineCohortDefinitions <- function(modelsJson){
-  
-  if(class(modelsJson)=='modelsJson'){
-    cohortDefinitions <- modelsJson$cohortDefinitions
-  } else{
-    cohortDefinitions <- lapply(1:length(modelsJson), function(i){modelsJson[[i]]$cohortDefinitions})
-    
-    # combine into single list
-    cohortDefinitionsAll <- cohortDefinitions[[1]]
-    for(i in 2:length(cohortDefinitions)){
-      cohortDefinitionsAll <- append(cohortDefinitionsAll, cohortDefinitions[[i]])
-    }
-    cohortDefinitions <- unique(cohortDefinitionsAll)
-    
-    # check for duplicate ids
-    details <- do.call(rbind, lapply(1:length(cohortDefinitions), function(i){c(cohortDefinitions[[i]]$name,
-                                                                                cohortDefinitions[[i]]$id)}))
-    
-    if(length(unique(details[,2])) != length(details[,2])){
-      warning('Multiple ids with different cohort names - this will cause issues...')
-    }
-    
-  }
-  
-  return(cohortDefinitions)
 }
 
 
 transportModelsToJson <- function(modelJson, packageLoc){
   
-  if(!dir.exists(file.path(packageLoc,'inst', 'models'))){
-    dir.create(file.path(packageLoc,'inst', 'models'), recursive = T)
-  }
-  
-  # save model/covMap/varImp to list to save as files after Hydra
-  if(class(modelJson) == 'modelsJson'){
-    saveModelJson(modelJson, packageLoc)
-  } else{
-    lapply(1:length(modelJson), function(i){saveModelJson(modelJson[[i]], packageLoc)})
-  }
-  
-  return(invisible(NULL))
-}
-
-saveModelJson <- function(modelJson, packageLoc){
-  
-  if(!dir.exists(file.path(packageLoc,'inst', 'models', modelJson$modelSettingsJson$name))){
-    dir.create(file.path(packageLoc,'inst', 'models',modelJson$modelSettingsJson$name), recursive = T)
-  }
-  
-  #save varImp and covariateMap
-  write.csv(x = modelJson$varImp,
-            file = file.path(packageLoc,'inst', 'models', modelJson$modelSettingsJson$name,'varImp.csv'),
-            row.names = F)
-  write.csv(x = modelJson$covariateMap,
-            file = file.path(packageLoc,'inst', 'models', modelJson$modelSettingsJson$name,'covariateMap.csv'),
-            row.names = F)
-  
-  
-  if(modelJson$modelSettingsJson$attr_type == 'xgboost'){
-    
-    xgboost::xgb.save(model = modelJson$model,
-                      fname = file.path(packageLoc,'inst', 'models', modelJson$modelSettingsJson$name,'model.json')
-    )
-    
-    #file.copy(from =  modelsJson$model,
-    #          to = file.path(packageLoc,'inst', 'models', modelsJson$modelSettingsJson$name,'model.json'))
-    
-  }else if(modelJson$modelSettingsJson$attr_type %in% c('pythonJson','pythonReticulate')){
-    
-    #load pick and save as json
-    covertPickleToJson(pickLoc = modelJson$model,
-                       jsonLoc = file.path(packageLoc,'inst', 'models', modelJson$modelSettingsJson$name,'model.json'))
-  } else{
-    modAsJson <- RJSONIO::toJSON(x = modelJson$model, digits = 23)
-    write(modAsJson, file.path(packageLoc,'inst', 'models', modelJson$modelSettingsJson$name,'model.json'))
-  }
+  lapply(
+    1:length(modelJson), 
+    function(i){
+      PatientLevelPrediction::savePlpModel(
+        plpModel = modelJson[[i]], 
+        dirPath = file.path(packageLoc, 'inst', 'models', modelJson[[i]]$trainDetails$analysisId)
+      )
+    }
+  )
   
   return(invisible(NULL))
 }
-
-covertPickleToJson <- function(pickLoc, jsonLoc){
-  
-  jb <- reticulate::import('joblib')
-  model <- jb$load(file.path(pickLoc,"model.pkl"))
-  
-  skljson <- reticulate::import('sklearn_json')
-  skljson$to_json(model = model, model_name =  jsonLoc)
-  
-  return(invisible(NULL))
-}
-
-createValidationPackageList <- function(modelJson,
-                                    outputFolder,
-                                    packageName,
-                                    description = 'missing',
-                                    skeletonVersion = 'v1.0.0',
-                                    createdBy = 'anonymous',
-                                    organizationName = 'none'){
-  
-  if(missing(modelJson)){
-    stop('Must Enter modelJson')
-  }
-  if(missing(outputFolder)){
-    stop('Must Enter outputFolder')
-  }
-  if(missing(packageName)){
-    stop('Must Enter packageName')
-  }
-  
-  packageLoc <- file.path(outputFolder, packageName)
-  
-  jsonSet <- createValidationJson(packageName = packageName,
-                                  description = description,
-                                  skeletonVersion = skeletonVersion,
-                                  createdBy = createdBy,
-                                  organizationName = organizationName,
-                                  modelsJson = modelJson)
-  
-  jsonSet <- RJSONIO::toJSON(jsonSet, digits = 23)
-  Hydra::hydrate(jsonSet,
-                 outputFolder = packageLoc)
-  
-  transportModelsToJson(modelJson, packageLoc)
-  
-  return(packageLoc)
-}
-
 
 
 

@@ -5,55 +5,27 @@
 \title{Execute the Study}
 \usage{
 execute(
-  connectionDetails,
-  cdmDatabaseSchema,
-  cdmDatabaseName = "friendly database name",
-  cohortDatabaseSchema = cdmDatabaseSchema,
-  cohortTable = "cohort",
-  oracleTempSchema = cohortDatabaseSchema,
+  databaseDetails,
   outputFolder,
   createProtocol = F,
   createCohorts = F,
   runDiagnostic = F,
   viewDiagnostic = F,
   runAnalyses = F,
-  createResultsDoc = F,
   createValidationPackage = F,
-  saveModelsToJson = T,
+  useHydra = F,
   skeletonVersion = "v0.0.1",
   analysesToValidate = NULL,
   packageResults = F,
   minCellCount = 5,
-  createShiny = F,
-  createJournalDocument = F,
-  analysisIdDocument = 1,
+  viewShiny = F,
   onlyFetchData = F,
   sampleSize = NULL,
-  verbosity = "INFO",
-  cdmVersion = 5
+  logSettings
 )
 }
 \arguments{
-\item{connectionDetails}{An object of type \code{connectionDetails} as created using the
-\code{\link[DatabaseConnector]{createConnectionDetails}} function in the
-DatabaseConnector package.}
-
-\item{cdmDatabaseSchema}{Schema name where your patient-level data in OMOP CDM format resides.
-Note that for SQL Server, this should include both the database and
-schema name, for example 'cdm_data.dbo'.}
-
-\item{cdmDatabaseName}{Shareable name of the database}
-
-\item{cohortDatabaseSchema}{Schema name where intermediate data can be stored. You will need to have
-write priviliges in this schema. Note that for SQL Server, this should
-include both the database and schema name, for example 'cdm_data.dbo'.}
-
-\item{cohortTable}{The name of the table that will be created in the work database schema.
-This table will hold the target population cohorts used in this
-study.}
-
-\item{oracleTempSchema}{Should be used in Oracle to specify a schema where the user has write
-priviliges for storing temporary tables.}
+\item{databaseDetails}{Database details created using \code{PatientLevelPrediction::createDatabaseDetails()}}
 
 \item{outputFolder}{Name of local folder to place results; make sure to use forward slashes
 (/). Do not use a folder on a network drive since this greatly impacts
@@ -70,11 +42,9 @@ settings or whether the prediction may not do well.}
 
 \item{runAnalyses}{Run the model development}
 
-\item{createResultsDoc}{Create a document containing the results of each prediction}
-
 \item{createValidationPackage}{Create a package for sharing the models}
 
-\item{saveModelsToJson}{Whether to save the models as json for validation (not all models are supported)}
+\item{useHydra}{Whether to use Hydra to create the validation package (requires hydra to be installed) or download the master version of the skeleton (requires internet access)}
 
 \item{skeletonVersion}{The version of the validation skeleton to use}
 
@@ -85,27 +55,13 @@ settings or whether the prediction may not do well.}
 \item{minCellCount}{The minimum number of subjects contributing to a count before it can be included 
 in packaged results.}
 
-\item{createShiny}{Create a shiny app with the results}
-
-\item{createJournalDocument}{Do you want to create a template journal document populated with results?}
-
-\item{analysisIdDocument}{Which Analysis_id do you want to create the document for?}
+\item{viewShiny}{View a shiny app with the results}
 
 \item{onlyFetchData}{Only fetch data for the analyses without fitting models. Setting this flag will overwrite your input provided to the runAnalyses and createCohorts parameters.}
 
 \item{sampleSize}{The number of patients in the target cohort to sample (if NULL uses all patients)}
 
-\item{verbosity}{Sets the level of the verbosity. If the log level is at or higher in priority than the logger threshold, a message will print. The levels are:
-\itemize{
-\item{DEBUG}{Highest verbosity showing all debug statements}
-\item{TRACE}{Showing information about start and end of steps}
-\item{INFO}{Show informative information (Default)}
-\item{WARN}{Show warning messages}
-\item{ERROR}{Show error messages}
-\item{FATAL}{Be silent except for fatal errors}
-}}
-
-\item{cdmVersion}{The version of the common data model}
+\item{logSettings}{The log setting \code{PatientLevelPrediction::createLogSettings()}}
 }
 \description{
 Execute the Study
@@ -119,29 +75,41 @@ connectionDetails <- createConnectionDetails(dbms = "postgresql",
                                              user = "joe",
                                              password = "secret",
                                              server = "myserver")
+                                             
+ databaseDetails <- PatientLevelPrediction::createDatabaseDetails(
+ connectionDetails = connectionDetails,
+ cdmDatabaseSchema = cdmDatabaseSchema,
+ cdmDatabaseName = cdmDatabaseName,
+ tempEmulationSchema = tempEmulationSchema,
+ cohortDatabaseSchema = cohortDatabaseSchema,
+ cohortTable = cohortTable,
+ outcomeDatabaseSchema = cohortDatabaseSchema,
+ outcomeTable = cohortTable,
+ cdmVersion = cdmVersion
+ )  
+ 
+ logSettings <- PatientLevelPrediction::createLogSettings(
+ verbosity = "INFO",
+ timeStamp = T,
+ logName = 'skeletonPlp'
+ )                                          
 
-execute(connectionDetails,
-        cdmDatabaseSchema = "cdm_data",
-        cdmDatabaseName = 'shareable name of the database'
-        cohortDatabaseSchema = "study_results",
-        cohortTable = "cohort",
-        oracleTempSchema = NULL,
+execute(databaseDetails = databaseDetails,
         outputFolder = "c:/temp/study_results", 
         createProtocol = T,
         createCohorts = T,
         runDiagnostic = F,
         viewDiagnostic = F,
         runAnalyses = T,
-        createResultsDoc = T,
         createValidationPackage = T,
-        saveModelsToJson = T,
+        useHydra = F,
         skeletonVersion = 'v1.0.1',
         packageResults = F,
         minCellCount = 5,
-        createShiny = F,
+        viewShiny = F,
         sampleSize = 10000,
-        verbosity = "INFO",
-        cdmVersion = 5)
+        logSettings = logSettings
+        )
 }
 
 }

@@ -32,16 +32,16 @@
 #'
 #' @export
 submitResults <- function(outputFolder, privateKeyFileName, userName, remoteFolder = NULL) {
-  zipName <- file.path(outputFolder, "StudyResults.zip")
+  zipName <- file.path(outputFolder, "resultsToShare.zip")
   if (!file.exists(zipName)) {
     stop(paste("Cannot find file", zipName))
   }
   ParallelLogger::logInfo(paste0("Uploading file '", zipName, "' to study coordinating center"))
   tryCatch({OhdsiSharing::sftpUploadFile(fileName = zipName, 
-                                         remoteFolder = ifelse(is.null(remoteFolder), "patientLevelPrediction", remoteFolder),
-                                         privateKeyFileName  = privateKeyFileName,
-                                         userName = userName)},
-                     error = function(e){ParallelLogger::logInfo("Upload failed. Please contact the study coordinator"); ParallelLogger::logInfo(paste0('Error: ', e))}
-                     )
+    remoteFolder = ifelse(is.null(remoteFolder), "patientLevelPrediction", remoteFolder),
+    privateKeyFileName  = privateKeyFileName,
+    userName = userName)},
+    error = function(e){ParallelLogger::logInfo("Upload failed. Please contact the study coordinator"); ParallelLogger::logInfo(paste0('Error: ', e))}
+  )
   ParallelLogger::logInfo("Finished uploading")
 }
