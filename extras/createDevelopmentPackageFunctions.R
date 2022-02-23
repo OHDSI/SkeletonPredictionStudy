@@ -121,6 +121,9 @@ createDevelopmentPackage <- function(
   }
   
   if(!missing(skeletonLocation)){
+    if(!dir.exists(packageLocation)){
+      dir.create(packageLocation, recursive = T)
+    }
   # copy the skeleton to the output location
   file.copy(list.files(skeletonLocation, full.names = TRUE), 
     to = packageLocation, 
