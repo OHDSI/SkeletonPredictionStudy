@@ -8,7 +8,7 @@ Description: A skeleton package to be used as a starting point when implementing
 Depends:
     R(>= 3.6.0)
 Imports:
-    CohortGenerator,
+    CohortGenerator (>= 0.3.0),
     DatabaseConnector (>= 5.0.0),
     dplyr,
     jsonlite,
@@ -34,11 +34,10 @@ Suggests:
     R.utils,
     reshape2
 Remotes:
-    ohdsi/CohortGenerator,
+    ohdsi/CohortGenerator@from_package,
     ohdsi/Hydra,
     ohdsi/OhdsiSharing,
-    ohdsi/ParallelLogger
-    ohdsi/PatientLevelPrediction 
+    ohdsi/PatientLevelPrediction@issue242
 License: Apache License 2.0
 RoxygenNote: 7.1.1
 SkeletonNote: 1.0.0

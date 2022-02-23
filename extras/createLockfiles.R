@@ -5,11 +5,13 @@ devtools::install_github('ohdsi/OhdsiRTools')
 OhdsiRTools::createRenvLockFile(rootPackage = "SkeletonPredictionStudy",
                                 includeRootPackage = FALSE,
                                 additionalRequiredPackages = c(
+                                  "CohortGenerator", # can't get this?
                                   "survAUC",
                                   "xgboost", 
                                   "DBI", 
                                   "DT", 
                                   "htmltools", 
+                                  "Hydra",
                                   "plotly", 
                                   "pool", 
                                   "shiny", 
