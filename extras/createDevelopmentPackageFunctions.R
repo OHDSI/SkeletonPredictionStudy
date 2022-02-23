@@ -105,7 +105,7 @@ createDevelopmentPackage <- function(
   jsonFileLocation = NULL, 
   baseUrl,
   skeletonLocation,
-  skeletonUrl = "https://github.com/ohdsi/SkeletonPredictionStudy/archive/master.zip",
+  skeletonUrl = "https://github.com/ohdsi/SkeletonPredictionStudy/archive/main.zip",
   outputLocation,
   packageName){
   
@@ -136,7 +136,7 @@ createDevelopmentPackage <- function(
                  exdir = outputLocation
                  )
     #rename
-    file.rename(file.path(outputLocation,'SkeletonPredictionStudy-master'), packageLocation)
+    file.rename(file.path(outputLocation,'SkeletonPredictionStudy-main'), packageLocation)
     
   } else{
     stop('Please enter either skeletonLocation or skeletonUrl')
