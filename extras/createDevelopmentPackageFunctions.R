@@ -31,14 +31,23 @@ createDevelopmentSkeletonSettings <- function(
   jsonSettings$skeletonVersion <- skeletonVersion
   jsonSettings$packageName <- packageName 
   
+  splitSettings$attributes <- attributes(splitSettings)
+  class(splitSettings) <- 'list'
   jsonSettings$splitSettings <- splitSettings
   
   jsonSettings$cohortDefinitions <- cohortDefinitions
   
   if(!is.null(saveDirectory)){
     
-    jsonSettings <- jsonlite::serializeJSON(jsonSettings, digits = 23)
-    
+    #jsonSettings <- jsonlite::serializeJSON(jsonSettings, digits = 23)
+    jsonSettings <- jsonlite::toJSON(
+      x = jsonSettings, 
+      pretty = T, 
+      digits = 23, 
+      auto_unbox=TRUE, 
+      null = "null"
+    )
+      
     fileName <- file.path(saveDirectory, 'predictionAnalysisList.json')
     if(!dir.exists(saveDirectory)){
       ParallelLogger::logInfo('Creating saveDirectory')
@@ -209,7 +218,18 @@ saveAnalysisJson <- function(
   jsonList
   ){
   
-  jsonObject  <- jsonlite::serializeJSON(jsonList, digits = 23)
+  # convert into lists with attributes in list
+  jsonList$analysis <- PatientLevelPrediction::savePlpAnalysesJson(
+    modelDesignList = jsonList$analysis,
+    saveDirectory = NULL)$analysis
+  
+  jsonObject <- jsonlite::toJSON(
+    x = jsonList, 
+    pretty = T, 
+    digits = 23, 
+    auto_unbox=TRUE, 
+    null = "null"
+  )
   write(
     x = jsonObject, 
     file = file.path(packageLocation, 'inst', 'settings', 'predictionAnalysisList.json'), 
@@ -259,7 +279,7 @@ saveCohorts <- function(
   lapply(
     1:length(analysisList$cohortDefinitions), 
     function(i){
-      jsonObject  <- jsonlite::serializeJSON(analysisList$cohortDefinitions[[i]], digits = 23)
+      jsonObject  <- jsonlite::toJSON(analysisList$cohortDefinitions[[i]], digits = 23)
       write(
         x = jsonObject,
         file = file.path(packageLocation, 'inst', 'cohorts', paste0(analysisList$cohortDefinitions[[i]]$id,'.json'))

@@ -112,7 +112,11 @@ execute <- function(
   
   if(createProtocol){
     ensure_installed('officer')
-    createPlpProtocol(predictionAnalysisListFile = NULL, outputLocation = outputFolder)
+    tryCatch(
+      {createPlpProtocol(predictionAnalysisListFile = NULL, outputLocation = outputFolder)},
+      error = {function(e) ParallelLogger::logError(e);}
+    )
+             
   }
   
   if (createCohorts) {
@@ -138,8 +142,14 @@ execute <- function(
       {PatientLevelPrediction::loadPlpAnalysesJson(file.path(predictionAnalysisListFile))},
       error= function(cond) {
         ParallelLogger::logInfo('Issue when loading json file...');
-        ParallelLogger::logError(cond)
+        ParallelLogger::logError(cond);
+        return(NULL)
       })
+    
+    # make backwards compatible
+    if(is.null(predictionAnalysisList)){
+      predictionAnalysisList <- backwards(predictionAnalysisListFile)
+    }
     
     # add sample settings
     if(!is.null(sampleSize)){
