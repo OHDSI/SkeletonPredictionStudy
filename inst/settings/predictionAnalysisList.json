@@ -51,7 +51,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 1039,
+          "sampleSeed": 4343,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -87,7 +87,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 26008175,
+            "seed": 70818603,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -161,7 +161,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 5940,
+          "sampleSeed": 2459,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -197,7 +197,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 67088154,
+            "seed": 17517829,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -271,7 +271,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 3869,
+          "sampleSeed": 9923,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -307,7 +307,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 44242099,
+            "seed": 91778173,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -381,7 +381,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 7913,
+          "sampleSeed": 711,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -417,7 +417,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 9508421,
+            "seed": 19052847,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -491,7 +491,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 4118,
+          "sampleSeed": 6209,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -527,7 +527,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 86568290,
+            "seed": 4789980,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -601,7 +601,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 6553,
+          "sampleSeed": 2058,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -637,7 +637,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 16949260,
+            "seed": 50831188,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -711,7 +711,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 587,
+          "sampleSeed": 3512,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -747,7 +747,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 84328380,
+            "seed": 99988563,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -821,7 +821,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 3903,
+          "sampleSeed": 2182,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -857,7 +857,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 95807338,
+            "seed": 8215612,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -931,7 +931,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 340,
+          "sampleSeed": 1528,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -967,7 +967,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 48744219,
+            "seed": 40446227,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -1041,7 +1041,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 4919,
+          "sampleSeed": 1177,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -1077,7 +1077,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 74156982,
+            "seed": 39587249,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -1151,7 +1151,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 8037,
+          "sampleSeed": 2899,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -1187,7 +1187,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 33706127,
+            "seed": 33695347,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -1261,7 +1261,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 4135,
+          "sampleSeed": 8746,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -1297,7 +1297,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 57503665,
+            "seed": 83401290,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -1371,7 +1371,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 4481,
+          "sampleSeed": 2845,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -1407,7 +1407,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 26708552,
+            "seed": 59338412,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -1481,7 +1481,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 9368,
+          "sampleSeed": 2639,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -1517,7 +1517,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 33073934,
+            "seed": 19660166,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -1591,7 +1591,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 3711,
+          "sampleSeed": 6291,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -1627,7 +1627,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 239090,
+            "seed": 16325646,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -1701,7 +1701,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 7106,
+          "sampleSeed": 8532,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -1737,7 +1737,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 76470466,
+            "seed": 42269171,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -1811,7 +1811,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 5298,
+          "sampleSeed": 5415,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -1847,7 +1847,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 10202608,
+            "seed": 40736718,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -1921,7 +1921,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 4032,
+          "sampleSeed": 6444,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -1957,7 +1957,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 92760392,
+            "seed": 36976195,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -2031,7 +2031,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 4383,
+          "sampleSeed": 4997,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -2067,7 +2067,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 24878771,
+            "seed": 90256221,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -2141,7 +2141,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 4525,
+          "sampleSeed": 2969,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -2177,7 +2177,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 81257760,
+            "seed": 5516338,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -2251,7 +2251,7 @@
       "sampleSettings": [
         {
           "numberOutcomestoNonOutcomes": 1,
-          "sampleSeed": 8099,
+          "sampleSeed": 9657,
           "attr_fun": "sameData",
           "attr_class": "sampleSettings"
         }
@@ -2287,7 +2287,7 @@
             "modelType": "logistic",
             "addIntercept": true,
             "useControl": true,
-            "seed": 33377271,
+            "seed": 46156713,
             "name": "Lasso Logistic Regression",
             "threads": -1,
             "tolerance": 2e-06,
@@ -2314,11 +2314,11 @@
   "skeletonType": "PatientLevelPredictionStudy",
   "organizationName": "OHDSI",
   "skeletonVersion": "v1.0.0",
-  "packageName": "ExamplePrediction",
+  "packageName": "ExamplePredictionFixed",
   "splitSettings": {
     "test": 0.25,
     "train": 0.75,
-    "seed": 49738,
+    "seed": 23195,
     "nfold": 3,
     "attributes": {
       "names": ["test", "train", "seed", "nfold"],
@@ -2350,8 +2350,8 @@
               }
             }
           ],
-          "ObservationWindow": [365, 30],
-          "PrimaryCriteriaLimit": "First"
+          "ObservationWindow": {"PriorDays":365,"PostDays":30},
+          "PrimaryCriteriaLimit": {"Type":"First"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -2364,8 +2364,8 @@
                 }
               },
               "StartWindow": {
-                "Start": [30, -1],
-                "End": [30, 1],
+                "Start": {"Days":30,"Coeff":-1},
+                "End": {"Days":30,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
@@ -2385,8 +2385,8 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [1, -1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":1,"Coeff":-1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
@@ -2406,8 +2406,8 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [1, -1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":1,"Coeff":-1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
@@ -2427,8 +2427,8 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [1, -1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":1,"Coeff":-1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
@@ -3081,8 +3081,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "First",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"First"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -3127,8 +3127,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -3141,14 +3141,14 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [0, 1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":0,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
               "EndWindow": {
-                "Start": [0, -1],
-                "End": 1,
+                "Start": {"Days":0,"Coeff":-1},
+                "End": {"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": true
               },
@@ -3386,8 +3386,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [
           {
             "name": "has no events in prior 'clean window' - 365 days",
@@ -3408,14 +3408,14 @@
                               }
                             },
                             "StartWindow": {
-                              "Start": -1,
-                              "End": [0, 1],
+                              "Start": {"Coeff":-1},
+                              "End": {"Days":0,"Coeff":1},
                               "UseIndexEnd": false,
                               "UseEventEnd": false
                             },
                             "EndWindow": {
-                              "Start": [0, -1],
-                              "End": 1,
+                              "Start": {"Days":0,"Coeff":-1},
+                              "End": {"Coeff":1},
                               "UseIndexEnd": false,
                               "UseEventEnd": true
                             },
@@ -3436,8 +3436,8 @@
                     }
                   },
                   "StartWindow": {
-                    "Start": [365, -1],
-                    "End": [1, -1],
+                    "Start": {"Days":365,"Coeff":-1},
+                    "End": {"Days":1,"Coeff":-1},
                     "UseIndexEnd": false,
                     "UseEventEnd": false
                   },
@@ -3498,8 +3498,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -3512,8 +3512,8 @@
                 }
               },
               "StartWindow": {
-                "Start": [365, -1],
-                "End": [60, 1],
+                "Start": {"Days":365,"Coeff":-1},
+                "End": {"Days":60,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
@@ -3533,14 +3533,14 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [0, 1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":0,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
               "EndWindow": {
-                "Start": [0, -1],
-                "End": 1,
+                "Start": {"Days":0,"Coeff":-1},
+                "End": {"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": true
               },
@@ -3905,8 +3905,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -3952,8 +3952,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -3982,8 +3982,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -4022,8 +4022,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -4069,8 +4069,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -4116,8 +4116,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -4146,8 +4146,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -4186,8 +4186,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -4200,14 +4200,14 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [0, 1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":0,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
               "EndWindow": {
-                "Start": [0, -1],
-                "End": 1,
+                "Start": {"Days":0,"Coeff":-1},
+                "End": {"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": true
               },
@@ -4326,8 +4326,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -4366,8 +4366,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -4413,8 +4413,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -4459,8 +4459,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -4642,8 +4642,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -4682,8 +4682,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -4696,14 +4696,14 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [0, 1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":0,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
               "EndWindow": {
-                "Start": [0, -1],
-                "End": 1,
+                "Start": {"Days":0,"Coeff":-1},
+                "End": {"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": true
               },
@@ -4941,8 +4941,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -5012,8 +5012,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -5101,8 +5101,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -5147,8 +5147,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -5228,8 +5228,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -5274,8 +5274,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -5288,8 +5288,8 @@
                 }
               },
               "StartWindow": {
-                "Start": [0, -1],
-                "End": [90, 1],
+                "Start": {"Days":0,"Coeff":-1},
+                "End": {"Days":90,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
@@ -5332,8 +5332,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -5378,8 +5378,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -5442,8 +5442,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -5488,8 +5488,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -5502,14 +5502,14 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [0, 1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":0,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
               "EndWindow": {
-                "Start": [0, -1],
-                "End": 1,
+                "Start": {"Days":0,"Coeff":-1},
+                "End": {"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": true
               },
@@ -5628,8 +5628,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -5668,8 +5668,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -5715,8 +5715,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -5755,8 +5755,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -5807,8 +5807,8 @@
                 }
               },
               "StartWindow": {
-                "Start": [1, 1],
-                "End": [365, 1],
+                "Start": {"Days":1,"Coeff":1},
+                "End": {"Days":365,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
@@ -5919,8 +5919,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -5965,8 +5965,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -5979,14 +5979,14 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [0, 1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":0,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
               "EndWindow": {
-                "Start": [0, -1],
-                "End": 1,
+                "Start": {"Days":0,"Coeff":-1},
+                "End": {"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": true
               },
@@ -6139,8 +6139,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -6191,8 +6191,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -6289,8 +6289,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -6335,8 +6335,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -6365,8 +6365,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -6405,8 +6405,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "AdditionalCriteria": {
           "Type": "ALL",
@@ -6419,14 +6419,14 @@
                 }
               },
               "StartWindow": {
-                "Start": -1,
-                "End": [0, 1],
+                "Start": {"Coeff":-1},
+                "End": {"Days":0,"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": false
               },
               "EndWindow": {
-                "Start": [0, -1],
-                "End": 1,
+                "Start": {"Days":0,"Coeff":-1},
+                "End": {"Coeff":1},
                 "UseIndexEnd": false,
                 "UseEventEnd": true
               },
@@ -6630,8 +6630,8 @@
             }
           }
         ],
-        "QualifiedLimit": "All",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"All"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {
@@ -6670,8 +6670,8 @@
               }
             }
           ],
-          "ObservationWindow": [0, 0],
-          "PrimaryCriteriaLimit": "All"
+          "ObservationWindow": {"PriorDays":0,"PostDays":0},
+          "PrimaryCriteriaLimit": {"Type":"All"}
         },
         "ConceptSets": [
           {
@@ -6734,8 +6734,8 @@
             }
           }
         ],
-        "QualifiedLimit": "First",
-        "ExpressionLimit": "All",
+        "QualifiedLimit": {"Type":"First"},
+        "ExpressionLimit": {"Type":"All"},
         "InclusionRules": [],
         "EndStrategy": {
           "DateOffset": {

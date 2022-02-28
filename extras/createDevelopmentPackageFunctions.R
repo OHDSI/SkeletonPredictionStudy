@@ -45,7 +45,8 @@ createDevelopmentSkeletonSettings <- function(
       pretty = T, 
       digits = 23, 
       auto_unbox=TRUE, 
-      null = "null"
+      null = "null",
+      keep_vec_names=TRUE # fixing issue with jsonlite dropping vector names
     )
       
     fileName <- file.path(saveDirectory, 'predictionAnalysisList.json')
@@ -228,7 +229,8 @@ saveAnalysisJson <- function(
     pretty = T, 
     digits = 23, 
     auto_unbox=TRUE, 
-    null = "null"
+    null = "null",
+    keep_vec_names=TRUE # fixing issue with jsonlite dropping vector names
   )
   write(
     x = jsonObject, 
