@@ -111,7 +111,6 @@ execute <- function(
   ParallelLogger::addDefaultFileLogger(file.path(outputFolder, "log.txt"))
   
   if(createProtocol){
-    ensure_installed('officer')
     tryCatch(
       {createPlpProtocol(predictionAnalysisListFile = NULL, outputLocation = outputFolder)},
       error = {function(e) ParallelLogger::logError(e);}

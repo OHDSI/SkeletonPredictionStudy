@@ -12,7 +12,7 @@ ensure_installed <- function(pkg) {
     if (interactive()) {
       message(msg, "\nWould you like to install it?")
       if (utils::menu(c("Yes", "No")) == 1) {
-        if(pkg%in%c('Hydra')){
+        if(pkg%in%c('Hydra', 'CirceR')){
           if(!is_installed('devtools')){
             utils::install.packages('devtools')
           }
