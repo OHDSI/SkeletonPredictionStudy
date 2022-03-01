@@ -22,7 +22,6 @@ output:
 
 
 ```{r setup, include = FALSE}
-library(tidyverse)
 
 if(params$jsonSettings == " "){
 jsonSettings <- tryCatch(
