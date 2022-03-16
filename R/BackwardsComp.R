@@ -97,7 +97,7 @@ backwards <- function(predictionAnalysisListFile){
   
   json$splitSettings <- PatientLevelPrediction::createDefaultSplitSetting(
     testFraction = json$runPlpArgs$testFraction, 
-    splitSeed = json$runPlpArgs$splitSeed, 
+    splitSeed = splitSeed, 
     nfold = json$runPlpArgs$nfold, 
     type = splitType
     )
