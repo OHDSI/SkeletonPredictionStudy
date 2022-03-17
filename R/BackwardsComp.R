@@ -88,9 +88,16 @@ backwards <- function(predictionAnalysisListFile){
     splitType <- 'subject'
   }
   
+  # If splitSeed is NULL then give a default SplitSeed
+  if(is.null(json$runPlpArgs$splitSeed)){
+    splitSeed <- sample(1e+05, 1)
+  } else {
+    splitSeed <- json$runPlpArgs$splitSeed
+  }
+  
   json$splitSettings <- PatientLevelPrediction::createDefaultSplitSetting(
     testFraction = json$runPlpArgs$testFraction, 
-    splitSeed = json$runPlpArgs$splitSeed, 
+    splitSeed = splitSeed, 
     nfold = json$runPlpArgs$nfold, 
     type = splitType
     )
