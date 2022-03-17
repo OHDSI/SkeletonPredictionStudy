@@ -44,7 +44,7 @@ dir.create(projectFolder,   recursive = T)
 setwd(projectFolder)
                                                                                               
 # Download the lock file:
-download.file("https://raw.githubusercontent.com/OHDSI/SkeletonPredictionStudy/main/renv.lock", "renv.lock")
+download.file("https://raw.githubusercontent.com/ohdsi-studies/SkeletonPredictionStudy/main/renv.lock", "renv.lock")
 
 # Build the local library into projectFolder (takes a while):
 renv::init()
