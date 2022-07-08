@@ -78,17 +78,16 @@ getCohortDefinitions <- function(
   allIds <- unique(c(componentIds, covariateIds))
   
   ParallelLogger::logInfo('Extracting cohorts using webapi')
-  
-  cohortDefinitions <- list()
-  length(cohortDefinitions) <- length(allIds)
-  for (i in 1:length(allIds)) {
-    ParallelLogger::logInfo(paste("Extracting cohort:", allIds[i]))
-    cohortDefinitions[[i]] <- ROhdsiWebApi::getCohortDefinition(
-      cohortId = allIds[i], 
-      baseUrl = baseUrl
+  # get a data.frame with all the cohorts sql and json 
+  cohortDefinitions <- ROhdsiWebApi::exportCohortDefinitionSet(
+    baseUrl = baseUrl, 
+    cohortIds = allIds, 
+    generateStats = F
     )
-    
-    ParallelLogger::logInfo(paste0('Extracted ', cohortDefinitions[[i]]$name ))
+  
+  for (cn in cohortDefinitions$cohortName) {
+    # add code to print name
+    ParallelLogger::logInfo(paste0('Extracted ', cn ))
   }
   
   return(cohortDefinitions)
@@ -98,7 +97,6 @@ getCohortDefinitions <- function(
 createDevelopmentPackage <- function(
   jsonList = NULL,
   jsonFileLocation = NULL, 
-  baseUrl,
   skeletonLocation,
   skeletonUrl = "https://github.com/ohdsi/SkeletonPredictionStudy/archive/main.zip",
   outputLocation,
@@ -157,11 +155,9 @@ createDevelopmentPackage <- function(
   # download cohorts + create the cohortsToCreate.csv
   saveCohorts(
     packageLocation = packageLocation,
-    analysisList = jsonList,
-    baseUrl = baseUrl
+    analysisList = jsonList
     )
   
-
 }
 
 
@@ -204,8 +200,16 @@ saveAnalysisJson <- function(
   jsonList
   ){
   
+  cohortDef <- jsonList$cohortDefinitions
+  jsonList$cohortDefinitions<- list(
+    name = cohortDef$cohortName,
+    id = cohortDef$cohortId#,
+    #json = cohortDef$json,
+    #sql = cohortDef$sql
+  )
+    
   ParallelLogger::saveSettingsToJson(
-    object = jsonList$analysis, 
+    object = jsonList,#jsonList$analysis, 
     fileName = file.path(packageLocation, 'inst', 'settings', 'predictionAnalysisList.json')
     )
   
@@ -216,23 +220,15 @@ saveAnalysisJson <- function(
 # save json and convert+save sql into inst/cohorts and inst/sql/sql_server
 saveCohorts <- function(
   packageLocation,
-  analysisList,
-  baseUrl
+  analysisList
   ){
   
 
-  details <- lapply(
-    1:length(analysisList$cohortDefinitions), 
-    function(i){
-      c(
-        cohort_name = analysisList$cohortDefinitions[[i]]$name,
-        cohort_id = analysisList$cohortDefinitions[[i]]$id,
-        web_api_cohort_id = analysisList$cohortDefinitions[[i]]$id 
+  details <- data.frame(
+        cohort_name = analysisList$cohortDefinitions$cohortName,
+        cohort_id = analysisList$cohortDefinitions$cohortId,
+        web_api_cohort_id = analysisList$cohortDefinitions$cohortId 
       )
-    }
-  )
-  details <- do.call('rbind', details)
-  details <- as.data.frame(details, stringsAsFactors = F)
 
   write.csv(
     x = details,
@@ -252,32 +248,27 @@ saveCohorts <- function(
   
   # save the cohorts as json
   lapply(
-    1:length(analysisList$cohortDefinitions), 
+    1:nrow(analysisList$cohortDefinitions), 
     function(i){
       ParallelLogger::saveSettingsToJson(
-        object = analysisList$cohortDefinitions[[i]], 
+        object = analysisList$cohortDefinitions$json[i], 
         fileName = file.path(
           packageLocation, 
           'inst', 
           'cohorts', 
-          paste0(analysisList$cohortDefinitions[[i]]$id,'.json')
+          paste0(analysisList$cohortDefinitions$cohortId[i],'.json')
           )
       )
-      #jsonObject  <- jsonlite::toJSON(analysisList$cohortDefinitions[[i]], digits = 23)
-      #write(
-      #  x = jsonObject,
-      #  file = file.path(packageLocation, 'inst', 'cohorts', paste0(analysisList$cohortDefinitions[[i]]$id,'.json'))
-      #)
     }
   )
   
   # save the cohorts as sql
   lapply(
-    1:length(analysisList$cohortDefinitions), 
+    1:nrow(analysisList$cohortDefinitions), 
     function(i){
       SqlRender::writeSql(
-        sql = ROhdsiWebApi::getCohortSql(analysisList$cohortDefinitions[[i]], baseUrl = baseUrl, generateStats = F),
-        targetFile = file.path(packageLocation, 'inst', 'sql', 'sql_server', paste0(analysisList$cohortDefinitions[[i]]$id, '.sql'))
+        sql = analysisList$cohortDefinitions$sql[i],
+        targetFile = file.path(packageLocation, 'inst', 'sql', 'sql_server', paste0(analysisList$cohortDefinitions$cohortId[i], '.sql'))
       )
     }
   )
