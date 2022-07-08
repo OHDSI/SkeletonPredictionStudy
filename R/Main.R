@@ -25,9 +25,6 @@
 #'                             performance.
 #' @param createProtocol       Creates a protocol based on the analyses specification                             
 #' @param createCohorts        Create the cohortTable table with the target population and outcome cohorts?
-#' @param runDiagnostic        Runs a diagnostic of the T, O and tar settings for the cdmDatabaseSchema - can be used to check whether to change 
-#'                             settings or whether the prediction may not do well.  
-#' @param viewDiagnostic       Opens a shiny app with the diagnostic results (run after runDiagnostic completes)                              
 #' @param runAnalyses          Run the model development
 #' @param createValidationPackage  Create a package for sharing the models 
 #' @param useHydra             Whether to use Hydra to create the validation package (requires hydra to be installed) or download the master version of the skeleton (requires internet access)
@@ -70,8 +67,6 @@
 #'         outputFolder = "c:/temp/study_results", 
 #'         createProtocol = T,
 #'         createCohorts = T,
-#'         runDiagnostic = F,
-#'         viewDiagnostic = F,
 #'         runAnalyses = T,
 #'         createValidationPackage = T,
 #'         useHydra = F,
@@ -90,8 +85,6 @@ execute <- function(
   outputFolder,
   createProtocol = F,
   createCohorts = F,
-  runDiagnostic = F,
-  viewDiagnostic = F,
   runAnalyses = F,
   createValidationPackage = F,
   useHydra = F,
@@ -126,8 +119,8 @@ execute <- function(
     )
   }
   
-  if(runAnalyses || onlyFetchData || runDiagnostic){
-    if(onlyFetchData || (runDiagnostic && !runAnalyses)) {
+  if(runAnalyses || onlyFetchData){
+    if(onlyFetchData) {
       ParallelLogger::logInfo("Only fetching data and not running predictions")
     } else {
       ParallelLogger::logInfo("Running predictions")
@@ -175,88 +168,13 @@ execute <- function(
       list(
         databaseDetails = databaseDetails,
         modelDesignList = predictionAnalysisList$analyses,
-        onlyFetchData =  onlyFetchData || (runDiagnostic && !runAnalyses),
-        splitSettings = predictionAnalysisList$splitSettings,
+        onlyFetchData =  onlyFetchData,
         cohortDefinitions = predictionAnalysisList$cohortDefinitions,
         logSettings = logSettings,
         saveDirectory = outputFolder
       )
     )
   }
-  
-  if(runDiagnostic){
-    ParallelLogger::logInfo(paste0("Creating diagnostic results for ",databaseDetails$cdmDatabaseName))
-    
-    settings <- utils::read.csv(file.path(outputFolder, 'settings.csv'))
-    
-    settings <- settings %>% 
-      dplyr::select(.data$targetName, .data$outcomeName, .data$dataLocation) %>% 
-      dplyr::mutate(target = paste0(.data$targetName, '-' , .data$dataLocation))
-    
-    length(unique(settings$target))
-    
-    # run diagnostic
-    for(i in 1:length(unique(settings$target))){
-      
-      setOfInt <- settings %>% dplyr::filter(.data$target  == unique(settings$target)[i])
-      
-      ParallelLogger::logInfo(paste0("Target Cohort: ", unique(setOfInt$targetName), ' generating'))
-      
-      diagnosticData <- PatientLevelPrediction::loadPlpData(file.path(outputFolder, setOfInt$dataLocation[1]))
-      diagnosticData$cohorts$cohortId <- i*100000+diagnosticData$cohorts$cohortId
-      
-      diag <- tryCatch(
-        {
-          PatientLevelPrediction::diagnostic( 
-            plpData = diagnosticData,
-            cdmDatabaseName = databaseDetails$cdmDatabaseName,
-            cohortName = unique(setOfInt$target), 
-            outcomeNames = unique(setOfInt$outcomeName), 
-            databaseDetails = NULL,
-            populationSettings = PatientLevelPrediction::createStudyPopulationSettings(
-              includeAllOutcomes = F, 
-              firstExposureOnly = F, 
-              washoutPeriod = 0, 
-              requireTimeAtRisk = F, 
-              removeSubjectsWithPriorOutcome = F, 
-              riskWindowStart = 0, 
-              riskWindowEnd = 9999
-            ),
-            outputFolder = file.path(outputFolder, 'diagnostics'), 
-            minCellCount = minCellCount
-          )
-        },
-        error = function(err) {
-          # error handler picks up where error was generated
-          ParallelLogger::logError(paste("Diagnostic error:  ",err))
-          return(NULL)
-          
-        }
-      )
-    }
-    
-    
-  }
-  
-  if(viewDiagnostic){
-    ParallelLogger::logInfo(paste0("Loading diagnostic shiny app"))
-    
-    checkDiagnosticResults <- dir.exists(file.path(outputFolder, 'diagnostics'))
-    checkShinyViewer <- dir.exists(system.file("shiny", "DiagnosticsExplorer", package = "PatientLevelPrediction"))
-    if(!checkDiagnosticResults){
-      warning('No diagnosstic results found, please execute with runDiagnostic first')
-    } else if(!checkShinyViewer){
-      warning('No DiagnosticsExplorer shiny app found in your PatientLevelPrediction library - try updating PatientLevelPrediction')
-    } else{
-      shinyDirectory <- system.file("shiny", "DiagnosticsExplorer", package = "PatientLevelPrediction")
-      shinySettings <- list(dataFolder = file.path(outputFolder, 'diagnostics'))
-      .GlobalEnv$shinySettings <- shinySettings
-      on.exit(rm(shinySettings, envir = .GlobalEnv))
-      shiny::runApp(shinyDirectory)
-    }
-    
-  }
-  
   
   if (packageResults) {
     ensure_installed("OhdsiSharing")

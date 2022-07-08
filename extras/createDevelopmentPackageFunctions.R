@@ -3,7 +3,6 @@ createDevelopmentSkeletonSettings <- function(
   skeletonVersion = 'v1.0.0',
   organizationName = "your name",
   modelDesignList = list(),
-  splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
   baseUrl,
   saveDirectory = NULL
 ){
@@ -21,44 +20,29 @@ createDevelopmentSkeletonSettings <- function(
     baseUrl = baseUrl
   )
   
-  jsonSettings <- PatientLevelPrediction::savePlpAnalysesJson(
-    modelDesignList = modelDesignList, 
-    saveDirectory = NULL
-  )
-  
   jsonSettings$skeletonType <-  "PatientLevelPredictionStudy"
   jsonSettings$organizationName <- organizationName
   jsonSettings$skeletonVersion <- skeletonVersion
   jsonSettings$packageName <- packageName 
   
-  splitSettings$attributes <- attributes(splitSettings)
-  class(splitSettings) <- 'list'
-  jsonSettings$splitSettings <- splitSettings
+  jsonSettings$analysis <- modelDesignList
   
   jsonSettings$cohortDefinitions <- cohortDefinitions
   
   if(!is.null(saveDirectory)){
     
-    #jsonSettings <- jsonlite::serializeJSON(jsonSettings, digits = 23)
-    jsonSettings <- jsonlite::toJSON(
-      x = jsonSettings, 
-      pretty = T, 
-      digits = 23, 
-      auto_unbox=TRUE, 
-      null = "null",
-      keep_vec_names=TRUE # fixing issue with jsonlite dropping vector names
-    )
-      
     fileName <- file.path(saveDirectory, 'predictionAnalysisList.json')
     if(!dir.exists(saveDirectory)){
       ParallelLogger::logInfo('Creating saveDirectory')
       dir.create(saveDirectory, recursive = T)
     }
     ParallelLogger::logInfo('Saving jsonsettings')
-    write(
-      x = jsonSettings,
-      file = fileName
+    
+    ParallelLogger::saveSettingsToJson(
+      object = jsonSettings,
+      fileName = fileName
       )
+    
   }
   
   return(invisible(jsonSettings))
@@ -219,23 +203,9 @@ saveAnalysisJson <- function(
   jsonList
   ){
   
-  # convert into lists with attributes in list
-  jsonList$analysis <- PatientLevelPrediction::savePlpAnalysesJson(
-    modelDesignList = jsonList$analysis,
-    saveDirectory = NULL)$analysis
-  
-  jsonObject <- jsonlite::toJSON(
-    x = jsonList, 
-    pretty = T, 
-    digits = 23, 
-    auto_unbox=TRUE, 
-    null = "null",
-    keep_vec_names=TRUE # fixing issue with jsonlite dropping vector names
-  )
-  write(
-    x = jsonObject, 
-    file = file.path(packageLocation, 'inst', 'settings', 'predictionAnalysisList.json'), 
-    append = F
+  ParallelLogger::saveSettingsToJson(
+    object = jsonList$analysis, 
+    fileName = file.path(packageLocation, 'inst', 'settings', 'predictionAnalysisList.json')
     )
   
   return(packageLocation)
@@ -254,9 +224,9 @@ saveCohorts <- function(
     1:length(analysisList$cohortDefinitions), 
     function(i){
       c(
-        cohortName = analysisList$cohortDefinitions[[i]]$name,
-        cohortId = analysisList$cohortDefinitions[[i]]$id,
-        webApiCohortId = analysisList$cohortDefinitions[[i]]$id 
+        cohort_name = analysisList$cohortDefinitions[[i]]$name,
+        cohort_id = analysisList$cohortDefinitions[[i]]$id,
+        web_api_cohort_id = analysisList$cohortDefinitions[[i]]$id 
       )
     }
   )
@@ -268,6 +238,8 @@ saveCohorts <- function(
     file = file.path(packageLocation, 'inst','Cohorts.csv'),
     row.names = F
     )
+  
+  #CohortGenerator::getCohortDefinitionSet()
   
   # make sure cohorts and sql/sql_server exist
   if(!dir.exists(file.path(packageLocation, 'inst', 'cohorts'))){
@@ -281,11 +253,20 @@ saveCohorts <- function(
   lapply(
     1:length(analysisList$cohortDefinitions), 
     function(i){
-      jsonObject  <- jsonlite::toJSON(analysisList$cohortDefinitions[[i]], digits = 23)
-      write(
-        x = jsonObject,
-        file = file.path(packageLocation, 'inst', 'cohorts', paste0(analysisList$cohortDefinitions[[i]]$id,'.json'))
+      ParallelLogger::saveSettingsToJson(
+        object = analysisList$cohortDefinitions[[i]], 
+        fileName = file.path(
+          packageLocation, 
+          'inst', 
+          'cohorts', 
+          paste0(analysisList$cohortDefinitions[[i]]$id,'.json')
+          )
       )
+      #jsonObject  <- jsonlite::toJSON(analysisList$cohortDefinitions[[i]], digits = 23)
+      #write(
+      #  x = jsonObject,
+      #  file = file.path(packageLocation, 'inst', 'cohorts', paste0(analysisList$cohortDefinitions[[i]]$id,'.json'))
+      #)
     }
   )
   
@@ -293,9 +274,9 @@ saveCohorts <- function(
   lapply(
     1:length(analysisList$cohortDefinitions), 
     function(i){
-      write(
-        x = ROhdsiWebApi::getCohortSql(analysisList$cohortDefinitions[[i]], baseUrl = baseUrl, generateStats = F),
-        file = file.path(packageLocation, 'inst', 'sql', 'sql_server', paste0(analysisList$cohortDefinitions[[i]]$id, '.sql'))
+      SqlRender::writeSql(
+        sql = ROhdsiWebApi::getCohortSql(analysisList$cohortDefinitions[[i]], baseUrl = baseUrl, generateStats = F),
+        targetFile = file.path(packageLocation, 'inst', 'sql', 'sql_server', paste0(analysisList$cohortDefinitions[[i]]$id, '.sql'))
       )
     }
   )

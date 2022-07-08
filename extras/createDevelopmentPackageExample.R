@@ -1,5 +1,5 @@
 source(file.path(getwd(),'extras/createDevelopmentPackageFunctions.R'))
-#devtools::source_url("https://raw.github.com/ohdsi/SkeletonPredictionStudy/issue242/extras/createDevelopmentPackageFunctions.R")
+#devtools::source_url("https://raw.github.com/ohdsi/SkeletonPredictionStudy/main/extras/createDevelopmentPackageFunctions.R")
 
 packageName <- 'ExamplePrediction'
 baseUrl <- 'https://api.ohdsi.org/WebAPI/'
@@ -26,6 +26,7 @@ modelDesign1 <- PatientLevelPrediction::createModelDesign(
     minFraction = 1/10000, 
     normalize = T
     ), 
+  splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
   modelSettings = PatientLevelPrediction::setLassoLogisticRegression(), 
   runCovariateSummary = T
   )
@@ -74,6 +75,7 @@ modelDesign2 <- PatientLevelPrediction::createModelDesign(
     minFraction = 1/10000, 
     normalize = T
   ), 
+  splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
   modelSettings = PatientLevelPrediction::setLassoLogisticRegression(), 
   runCovariateSummary = T
 )
@@ -87,7 +89,6 @@ jsonList <- createDevelopmentSkeletonSettings(
   packageName = packageName,
   organizationName = "OHDSI",
   modelDesignList = modelDesignList,
-  splitSettings = PatientLevelPrediction::createDefaultSplitSetting(),
   baseUrl = baseUrl,
   saveDirectory = NULL
   )
@@ -97,7 +98,7 @@ createDevelopmentPackage(
   jsonList = jsonList, 
   baseUrl = baseUrl,
   #skeletonLocation = 'D:/GitHub/SkeletonPredictionStudy', 
-  skeletonUrl = "https://github.com/ohdsi/SkeletonPredictionStudy/archive/master.zip",
+  skeletonUrl = "https://github.com/ohdsi/SkeletonPredictionStudy/archive/main.zip",
   outputLocation = '/Users/jreps/Documents/testing2',
   packageName = packageName
   )

@@ -15,6 +15,20 @@ backwards <- function(predictionAnalysisListFile){
     )
   }
   
+  #create split setting
+  if(json$runPlpArgs$testSplit %in% c('subject', 'time', 'stratified')){
+    splitType <- json$runPlpArgs$testSplit
+  }else{
+    splitType <- 'subject'
+  }
+  
+  splitSettings <- PatientLevelPrediction::createDefaultSplitSetting(
+    testFraction = json$runPlpArgs$testFraction, 
+    splitSeed = json$runPlpArgs$splitSeed, 
+    nfold = json$runPlpArgs$nfold, 
+    type = splitType
+  )
+  
   # this can be multiple?
   ##covariateSettingList <- lapply(json$covariateSettings, function(x) do.call(FeatureExtraction::createCovariateSettings, x))
   covariateSettingList <- json$covariateSettings
@@ -66,6 +80,7 @@ backwards <- function(predictionAnalysisListFile){
               featureEngineeringSettings = PatientLevelPrediction::createFeatureEngineeringSettings(),
               sampleSettings = PatientLevelPrediction::createSampleSettings(), 
               preprocessSettings = preprocessSettings, 
+              splitSettings =splitSettings,
               modelSettings = mod, 
               runCovariateSummary = T
               )
@@ -80,20 +95,6 @@ backwards <- function(predictionAnalysisListFile){
   
   # create modelDesigns:
   json$analyses <- modelDesign
-  
-  #create split setting
-  if(json$runPlpArgs$testSplit %in% c('subject', 'time', 'stratified')){
-    splitType <- json$runPlpArgs$testSplit
-  }else{
-    splitType <- 'subject'
-  }
-  
-  json$splitSettings <- PatientLevelPrediction::createDefaultSplitSetting(
-    testFraction = json$runPlpArgs$testFraction, 
-    splitSeed = json$runPlpArgs$splitSeed, 
-    nfold = json$runPlpArgs$nfold, 
-    type = splitType
-    )
   
   return(json)
 }

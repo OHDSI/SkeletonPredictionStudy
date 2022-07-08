@@ -1,20 +1,20 @@
 Package: SkeletonPredictionStudy
 Type: Package
 Title: A Skeleton for Prediction Development Studies that use the PatientLevelPrediction Framework
-Version: 1.0.5
+Version: 1.0.6
 Author: Jenna Reps [aut, cre]
 Maintainer: Jenna M Reps <reps@ohdsi.org>
 Description: A skeleton package to be used as a starting point when implementing patient-level prediction development studies.
 Depends:
     R(>= 3.6.0)
 Imports:
-    CohortGenerator (>= 0.3.0),
+    CohortGenerator (>= 0.5.0),
     DatabaseConnector (>= 5.0.0),
     dplyr,
     jsonlite,
     knitr,
     OhdsiSharing,
-    PatientLevelPrediction (>= 5.0.2),
+    PatientLevelPrediction (>= 5.0.6),
     ParallelLogger,
     rlang,
     rmarkdown,
@@ -26,10 +26,10 @@ Suggests:
     Hydra
 Remotes:
     ohdsi/CirceR,
-    ohdsi/CohortGenerator@from_package,
+    ohdsi/CohortGenerator,
     ohdsi/Hydra,
     ohdsi/OhdsiSharing,
-    ohdsi/PatientLevelPrediction@issue242
+    ohdsi/PatientLevelPrediction
 License: Apache License 2.0
 RoxygenNote: 7.1.1
 SkeletonNote: 1.0.0
