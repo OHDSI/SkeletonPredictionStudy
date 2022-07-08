@@ -20,6 +20,7 @@ createDevelopmentSkeletonSettings <- function(
     baseUrl = baseUrl
   )
   
+  jsonSettings <- list()
   jsonSettings$skeletonType <-  "PatientLevelPredictionStudy"
   jsonSettings$organizationName <- organizationName
   jsonSettings$skeletonVersion <- skeletonVersion
