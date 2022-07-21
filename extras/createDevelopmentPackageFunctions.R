@@ -201,12 +201,10 @@ saveAnalysisJson <- function(
   ){
   
   cohortDef <- jsonList$cohortDefinitions
-  jsonList$cohortDefinitions<- list(
-    name = cohortDef$cohortName,
-    id = cohortDef$cohortId#,
-    #json = cohortDef$json,
-    #sql = cohortDef$sql
-  )
+  jsonList$cohortDefinitions <-
+    lapply(1:length(cohortDef$cohortName), function(i)
+      list(name = cohortDef$cohortName[i],
+           id = cohortDef$cohortId[i]))
     
   ParallelLogger::saveSettingsToJson(
     object = jsonList,#jsonList$analysis, 

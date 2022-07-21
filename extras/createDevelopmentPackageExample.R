@@ -96,7 +96,6 @@ jsonList <- createDevelopmentSkeletonSettings(
 
 createDevelopmentPackage(
   jsonList = jsonList, 
-  baseUrl = baseUrl,
   #skeletonLocation = 'D:/GitHub/SkeletonPredictionStudy', 
   skeletonUrl = "https://github.com/ohdsi/SkeletonPredictionStudy/archive/main.zip",
   outputLocation = '/Users/jreps/Documents/testing2',

@@ -58,10 +58,10 @@ addCohortNames <- function(data, IdColumnName = "cohortId", nameColumnName = "co
   pathToCsv <- system.file("Cohorts.csv", package = "SkeletonPredictionStudy")
 
   idToName <- utils::read.csv(pathToCsv)
-  idToName <- idToName[order(idToName$cohortId), ]
-  idToName <- idToName[!duplicated(idToName$cohortId), ]
-  names(idToName)[1] <- IdColumnName
-  names(idToName)[2] <- nameColumnName
+  idToName <- idToName[order(idToName$cohort_id), ]
+  idToName <- idToName[!duplicated(idToName$cohort_id), ]
+  names(idToName)[1] <- nameColumnName
+  names(idToName)[2] <- IdColumnName
   data <- merge(data, idToName, all.x = TRUE)
   # Change order of columns:
   idCol <- which(colnames(data) == IdColumnName)
