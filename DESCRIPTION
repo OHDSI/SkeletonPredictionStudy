@@ -8,8 +8,8 @@ Description: A skeleton package to be used as a starting point when implementing
 Depends:
     R(>= 3.6.0)
 Imports:
-    CohortGenerator (>= 0.5.0),
-    DatabaseConnector (>= 5.0.0),
+    CohortGenerator (>= 0.6.0),
+    DatabaseConnector (>= 5.0.4),
     dplyr,
     jsonlite,
     knitr,
