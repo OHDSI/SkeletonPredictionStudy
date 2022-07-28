@@ -1,3 +1,8 @@
+SkeletonPredictionStudy 1.0.7
+======================
+  - Pulled in bug fixes from Henrik
+  - Renamed analysis to analyses to be consistent with PLP
+  
 SkeletonPredictionStudy 1.0.2
 ======================
   - Cleaned r package check 

@@ -26,7 +26,7 @@ createDevelopmentSkeletonSettings <- function(
   jsonSettings$skeletonVersion <- skeletonVersion
   jsonSettings$packageName <- packageName 
   
-  jsonSettings$analysis <- modelDesignList
+  jsonSettings$analyses <- modelDesignList
   
   jsonSettings$cohortDefinitions <- cohortDefinitions
   
@@ -207,7 +207,7 @@ saveAnalysisJson <- function(
            id = cohortDef$cohortId[i]))
     
   ParallelLogger::saveSettingsToJson(
-    object = jsonList,#jsonList$analysis, 
+    object = jsonList, 
     fileName = file.path(packageLocation, 'inst', 'settings', 'predictionAnalysisList.json')
     )
   

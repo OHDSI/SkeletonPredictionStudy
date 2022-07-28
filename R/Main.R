@@ -146,17 +146,17 @@ execute <- function(
     # add sample settings
     if(!is.null(sampleSize)){
       ParallelLogger::logInfo('Adding sample settings')
-      for(i in 1:length(predictionAnalysisList$analysis)){
-        predictionAnalysisList$analysis[[i]]$restrictPlpDataSettings$sampleSize <- sampleSize
+      for(i in 1:length(predictionAnalysisList$analyses)){
+        predictionAnalysisList$analyses[[i]]$restrictPlpDataSettings$sampleSize <- sampleSize
       }
     }
     
     # add code to add database settings for covariates...
     #[TODO]
-    for(i in 1:length(predictionAnalysisList$analysis)){
+    for(i in 1:length(predictionAnalysisList$analyses)){
       ParallelLogger::logInfo('Updating as cohort covariate settings is being used')
-      predictionAnalysisList$analysis[[i]]$covariateSettings <- addCohortSettings(
-        covariateSettings = predictionAnalysisList$analysis[[i]]$covariateSettings, 
+      predictionAnalysisList$analyses[[i]]$covariateSettings <- addCohortSettings(
+        covariateSettings = predictionAnalysisList$analyses[[i]]$covariateSettings, 
         cohortDatabaseSchema = databaseDetails$cohortDatabaseSchema, 
         cohortTable = databaseDetails$cohortTable
       )
@@ -167,7 +167,7 @@ execute <- function(
       
       list(
         databaseDetails = databaseDetails,
-        modelDesignList = predictionAnalysisList$analysis,
+        modelDesignList = predictionAnalysisList$analyses,
         onlyFetchData =  onlyFetchData,
         cohortDefinitions = predictionAnalysisList$cohortDefinitions,
         logSettings = logSettings,
