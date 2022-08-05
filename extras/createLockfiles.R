@@ -15,10 +15,7 @@ OhdsiRTools::createRenvLockFile(rootPackage = "SkeletonPredictionStudy",
                                   "Hydra",
                                   "plotly", 
                                   "pool", 
-                                  "shiny", 
-                                  "shinycssloaders", 
-                                  "shinydashboard", 
-                                  "shinyWidgets"
+                                  "OhdsiShinyModules"
                                 )
                                 )
 

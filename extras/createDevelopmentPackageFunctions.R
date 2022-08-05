@@ -221,11 +221,11 @@ saveCohorts <- function(
   analysisList
   ){
   
-
+  # had to edit to fix CohortGenerator 0.6.0 error
   details <- data.frame(
-        cohort_name = analysisList$cohortDefinitions$cohortName,
-        cohort_id = analysisList$cohortDefinitions$cohortId,
-        web_api_cohort_id = analysisList$cohortDefinitions$cohortId 
+        cohortName = analysisList$cohortDefinitions$cohortName,
+        cohortId = analysisList$cohortDefinitions$cohortId,
+        webApiCohortId = analysisList$cohortDefinitions$cohortId 
       )
 
   write.csv(
