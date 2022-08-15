@@ -44,3 +44,8 @@ rmarkdown::render("vignettes/CreatingStudyPackageInR.Rmd",
 # Store environment in which the study was executed -----------------------
 OhdsiRTools::insertEnvironmentSnapshotInPackage("SkeletonPredictionStudy")
 
+reticulate::conda_export(
+  envname = 'r-reticulate', 
+  file = "environment.yml", 
+  json = F
+)
