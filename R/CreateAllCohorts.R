@@ -54,19 +54,14 @@ createCohorts <- function(
   utils::write.csv(counts, file.path(outputFolder, "CohortCounts.csv"), row.names = FALSE)
 }
 
-addCohortNames <- function(data, IdColumnName = "cohortId", nameColumnName = "cohortName") {
+addCohortNames <- function(data) {
   pathToCsv <- system.file("Cohorts.csv", package = "SkeletonPredictionStudy")
-
+  
   idToName <- utils::read.csv(pathToCsv)
-  idToName <- idToName[order(idToName$cohort_id), ]
-  idToName <- idToName[!duplicated(idToName$cohort_id), ]
-  names(idToName)[1] <- nameColumnName
-  names(idToName)[2] <- IdColumnName
+  idToName <- idToName[order(idToName$cohortId), ]
+  idToName <- idToName[!duplicated(idToName$cohortId), ]
+  
   data <- merge(data, idToName, all.x = TRUE)
-  # Change order of columns:
-  idCol <- which(colnames(data) == IdColumnName)
-  if (idCol < ncol(data) - 1) {
-    data <- data[, c(1:idCol, ncol(data) , (idCol + 1):(ncol(data) - 1))]
-  }
+  
   return(data)
 }
